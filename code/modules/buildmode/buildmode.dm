@@ -35,14 +35,12 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	var/current_category = null
 
 	// Item browser interface
-	var/datum/browser/item_browser = null
+	var/datum/tgui_item_browser/item_browser = null
 	var/list/cached_icons = list() // Cache for item icons
 
 	// Pixel positioning mode
 	var/pixel_positioning_mode = FALSE
 	var/atom/movable/buildmode_pixel_dummy/pixel_positioning_dummy = null
-
-	var/list/cached_buildmode_html = list()
 
 /**
  * Creates a new buildmode instance
@@ -75,7 +73,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	holder.show_popup_menus = TRUE
 	clear_preview()
 	if(item_browser)
-		item_browser.close()
+		SStgui.close_uis(src)
 		item_browser = null
 	if(holder?.mob)
 		// UnregisterSignal(holder.mob, COMSIG_MOUSE_ENTERED)
@@ -98,7 +96,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	clear_preview()
 
 	if(item_browser)
-		item_browser.close()
+		SStgui.close_uis(src)
 		item_browser = null
 
 	cached_icons.Cut()
@@ -127,18 +125,18 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
  */
 /datum/buildmode/proc/create_buttons(client/client)
 	var/datum/hud/hud_used = client?.mob?.hud_used
-	modebutton = new /atom/movable/screen/buildmode/mode(null, hud_used, src)
+	modebutton = new /atom/movable/screen/buildmode/mode(src)
 	buttons += modebutton
-	buttons += new /atom/movable/screen/buildmode/help(null, hud_used, src)
-	dirbutton = new /atom/movable/screen/buildmode/bdir(null, hud_used, src)
+	buttons += new /atom/movable/screen/buildmode/help(src)
+	dirbutton = new /atom/movable/screen/buildmode/bdir(src)
 	buttons += dirbutton
-	categorybutton = new /atom/movable/screen/buildmode/category(null, hud_used, src)
+	categorybutton = new /atom/movable/screen/buildmode/category(src)
 	buttons += categorybutton
 
-	var/atom/movable/screen/buildmode/items/itembutton = new(null, hud_used, src)
+	var/atom/movable/screen/buildmode/items/itembutton = new(src)
 	buttons += itembutton
 
-	buttons += new /atom/movable/screen/buildmode/quit(null, hud_used, src)
+	buttons += new /atom/movable/screen/buildmode/quit(src)
 
 	build_options_grid(subtypesof(/datum/buildmode_mode), modeswitch_buttons, /atom/movable/screen/buildmode/modeswitch, hud_used)
 	build_options_grid(list(SOUTH, EAST, WEST, NORTH, NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST), dirswitch_buttons, /atom/movable/screen/buildmode/dirswitch, hud_used)
@@ -452,6 +450,9 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 /atom/movable/screen/buildmode/category/update_name()
 	. = ..()
 	var/category_name = "None"
+	if(!bd)
+		name = "Build Category: [category_name]"
+		return
 	switch(bd.current_category)
 		if(BM_CATEGORY_TURF)
 			category_name = "Turfs"
@@ -463,6 +464,49 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 			category_name = "Items"
 
 	name = "Build Category: [category_name]"
+
+/atom/movable/screen/buildmode/category/Click()
+	bd.toggle_item_browser()
+	return 1
+
+/**
+ * TGUI item browser — opens the TGUI window
+ */
+/datum/buildmode/proc/open_item_browser()
+	switch_state = BM_SWITCHSTATE_ITEMS
+	if(!item_browser)
+		item_browser = new(src)
+	ui_interact(holder.mob)
+
+/**
+ * Close the item browser
+ */
+/datum/buildmode/proc/close_item_browser()
+	switch_state = BM_SWITCHSTATE_NONE
+	SStgui.close_uis(src)
+	item_browser = null
+
+/**
+ * Select an item to build with
+ */
+/datum/buildmode/proc/select_item(item_path)
+	if(!ispath(item_path))
+		return
+	selected_item = item_path
+	create_preview_appearance(item_path)
+
+	var/name_to_show = ""
+	if(ispath(item_path, /turf))
+		var/turf/T = item_path
+		name_to_show = initial(T.name)
+	else if(ispath(item_path, /obj))
+		var/obj/O = item_path
+		name_to_show = initial(O.name)
+	else if(ispath(item_path, /mob))
+		var/mob/M = item_path
+		name_to_show = initial(M.name)
+
+	to_chat(holder.mob, "<span class='notice'>Selected [name_to_show] for building.</span>")
 
 GAME_VERB_GLOBAL_PROC(togglebuildmode, "Toggle Build Mode", "", "Event")
 	VERB_ARG_TYPED(M, VERB_ARG_TYPE_MOB, VERB_ARG_SOURCE_WORLD, /mob)

@@ -151,7 +151,7 @@
 	close_categoryswitch()
 	current_category = new_category
 	categorybutton.update_appearance()
-	open_item_browser()
+	SStgui.update_uis(src)
 
 /**
  * Place an object at the specified location
