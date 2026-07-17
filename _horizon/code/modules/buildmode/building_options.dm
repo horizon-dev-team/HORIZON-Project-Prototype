@@ -150,7 +150,6 @@
 /datum/buildmode/proc/change_category(new_category)
 	close_categoryswitch()
 	current_category = new_category
-	categorybutton.update_appearance()
 	SStgui.update_uis(src)
 
 /**

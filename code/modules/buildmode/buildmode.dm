@@ -19,7 +19,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 
 	// Switching management
 	var/switch_state = BM_SWITCHSTATE_NONE
-	var/switch_width = 5
+	var/switch_width = 4
 
 	// modeswitch UI
 	var/atom/movable/screen/buildmode/mode/modebutton
@@ -28,6 +28,8 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	// dirswitch UI
 	var/atom/movable/screen/buildmode/bdir/dirbutton
 	var/list/dirswitch_buttons = list()
+	/// item preview for selected item
+	var/atom/movable/screen/buildmode/preview_item/preview
 
 	// Category selection UI
 	var/atom/movable/screen/buildmode/category/categorybutton
@@ -108,8 +110,6 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	buttons += new /atom/movable/screen/buildmode/help(src)
 	dirbutton = new /atom/movable/screen/buildmode/bdir(src)
 	buttons += dirbutton
-	categorybutton = new /atom/movable/screen/buildmode/category(src)
-	buttons += categorybutton
 
 	var/atom/movable/screen/buildmode/items/itembutton = new(src)
 	buttons += itembutton
@@ -117,18 +117,6 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 
 	build_options_grid(subtypesof(/datum/buildmode_mode), modeswitch_buttons, /atom/movable/screen/buildmode/modeswitch, hud_used)
 	build_options_grid(list(SOUTH, EAST, WEST, NORTH, NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST), dirswitch_buttons, /atom/movable/screen/buildmode/dirswitch, hud_used)
-	build_options_grid(list(
-		BM_CATEGORY_TURF,
-		BM_CATEGORY_OBJ,
-		BM_CATEGORY_MOB,
-		BM_CATEGORY_ITEM,
-		BM_CATEGORY_WEAPON,
-		BM_CATEGORY_CLOTHING,
-		BM_CATEGORY_REAGENT_CONTAINERS,
-		BM_CATEGORY_FOOD,
-		BM_CATEGORY_MINERALS,
-		BM_CATEGORY_GAS,
-	), category_buttons, /atom/movable/screen/buildmode/categoryswitch, hud_used)
 
 /**
  * Create or update the preview appearance that follows the cursor
@@ -292,7 +280,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 /datum/buildmode/proc/close_dirswitch()
 	switch_state = BM_SWITCHSTATE_NONE
 	holder.screen -= dirswitch_buttons
-/*
+
 /datum/buildmode/proc/preview_selected_item(atom/typepath)
 	close_preview()
 	preview = new /atom/movable/screen/buildmode/preview_item(src)
@@ -312,7 +300,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 		return
 	holder.screen -= preview
 	QDEL_NULL(preview)
-*/
+
 /datum/buildmode/proc/change_mode(newmode)
 	mode.exit_mode(src)
 	QDEL_NULL(mode)
@@ -422,33 +410,6 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 			clear_selection()
 			return TRUE
 	return mode.handle_click(user.client, modifiers, object)
-
-/**
- * New buildmode category button
- */
-/atom/movable/screen/buildmode/category/update_name()
-	. = ..()
-	var/category_name = "None"
-	if(!bd)
-		name = "Build Category: [category_name]"
-		return
-	switch(bd.current_category)
-		if(BM_CATEGORY_TURF) category_name = "Turfs"
-		if(BM_CATEGORY_OBJ) category_name = "Objects"
-		if(BM_CATEGORY_MOB) category_name = "Mobs"
-		if(BM_CATEGORY_ITEM) category_name = "Items"
-		if(BM_CATEGORY_WEAPON) category_name = "Weapons"
-		if(BM_CATEGORY_CLOTHING) category_name = "Clothing"
-		if(BM_CATEGORY_FOOD) category_name = "Food"
-		if(BM_CATEGORY_REAGENT_CONTAINERS) category_name = "Reagents"
-		if(BM_CATEGORY_MINERALS) category_name = "Minerals"
-		if(BM_CATEGORY_GAS) category_name = "Gas"
-
-	name = "Build Category: [category_name]"
-
-/atom/movable/screen/buildmode/category/Click()
-	bd.toggle_item_browser()
-	return 1
 
 /datum/buildmode/proc/open_item_browser()
 	switch_state = BM_SWITCHSTATE_ITEMS

@@ -51,7 +51,7 @@ export function BuildMode() {
   const displayItems = query === '' ? currentItems : results;
 
   return (
-    <Window height={600} title="Build Mode" width={700}>
+    <Window height={600} title="Build Mode" width={740}>
       <Window.Content>
         <Stack vertical fill>
           <Stack.Item>

@@ -24,6 +24,8 @@
 #include "code\modules\buildmode\building_options.dm"
 #include "code\modules\buildmode\effects\line.dm"
 #include "code\modules\buildmode\submodes\items.dm"
+#include "code\modules\buildmode\buildmode_assets.dm"
+#include "code\modules\buildmode\tgui_browser.dm"
 #include "code\modules\physics\atom_movables.dm"
 #include "code\modules\physics\physics_component.dm"
 #include "code\modules\physics\physics_SS.dm"
