@@ -24,7 +24,7 @@
 			objholder = null
 			tgui_alert(usr,"That path is not allowed.")
 			return
-	BM.preview_selected_item(objholder)
+	//BM.preview_selected_item(objholder)
 
 /datum/buildmode_mode/advanced/handle_click(client/c, params, obj/object)
 	var/list/modifiers = params2list(params)
@@ -36,7 +36,7 @@
 		if (istype(object, /turf) || isobj(object) || istype(object, /mob))
 			objholder = object.type
 			to_chat(c, span_notice("[initial(object.name)] ([object.type]) selected."))
-			BM.preview_selected_item(objholder)
+			//BM.preview_selected_item(objholder)
 		else
 			to_chat(c, span_notice("[initial(object.name)] is not a turf, object, or mob! Please select again."))
 	else if(left_click)
