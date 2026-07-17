@@ -1,21 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import {
-  Button,
-  ImageButton,
-  Input,
-  NoticeBox,
-  Section,
-  Stack,
-  Tabs,
-} from 'tgui-core/components';
+import { useMemo } from 'react';
+import { Box, Button, ImageButton, Input, NoticeBox, Section, Stack, Tabs } from 'tgui-core/components';
 import { useFuzzySearch } from 'tgui-core/fuzzysearch';
 
 import { useBackend } from '../../backend';
 import { Window } from '../../layouts';
-import { logger } from '../../logging';
 
 type BuildModeData = {
-  current_category: number;
+  current_category: string;
   selected_item: string | null;
   pixel_positioning: boolean;
   build_dir: number;
@@ -23,7 +14,7 @@ type BuildModeData = {
 };
 
 type BuildModeCategory = {
-  id: number;
+  id: string;
   name: string;
   items: BuildModeItem[];
 };
@@ -34,26 +25,19 @@ type BuildModeItem = {
   icon: string;
 };
 
-const CATEGORY_NAMES: Record<number, string> = {
-  1: 'Turfs',
-  2: 'Objects',
-  3: 'Mobs',
-  4: 'Items',
-  5: 'Weapons',
-  6: 'Clothing',
-  7: 'Food',
-  8: 'Liquid Vessels',
-};
-
 export function BuildMode() {
   const { act, data } = useBackend<BuildModeData>();
   const { current_category, selected_item, pixel_positioning, categories } =
     data;
 
-  // Get items for the current category from static data
   const currentItems = useMemo(() => {
     const cat = categories.find((c) => c.id === current_category);
     return cat?.items || [];
+  }, [categories, current_category]);
+
+  const currentCatName = useMemo(() => {
+    const cat = categories.find((c) => c.id === current_category);
+    return cat?.name || 'items';
   }, [categories, current_category]);
 
   const { query, setQuery, results } = useFuzzySearch({
@@ -64,38 +48,35 @@ export function BuildMode() {
     },
   });
 
-  // Show filtered results when searching, all items when empty
-  const displayItems =
-    query === '' ? currentItems : results;
+  const displayItems = query === '' ? currentItems : results;
 
   return (
     <Window height={600} title="Build Mode" width={700}>
       <Window.Content>
         <Stack vertical fill>
-          {/* Category tabs */}
           <Stack.Item>
-            <Tabs>
-              {categories.map((cat) => (
-                <Tabs.Tab
-                  key={cat.id}
-                  selected={current_category === cat.id}
-                  onClick={() =>
-                    act('select_category', { category: cat.id })
-                  }
-                >
-                  {cat.name}
-                </Tabs.Tab>
-              ))}
-            </Tabs>
+            <Box style={{ overflowX: 'auto', overflowY: 'hidden' }}>
+              <Tabs style={{ minWidth: 'min-content' }}>
+                {categories.map((cat) => (
+                  <Tabs.Tab
+                    key={cat.id}
+                    selected={current_category === cat.id}
+                    onClick={() => act('select_category', { category: cat.id })}
+                    style={{ minWidth: 'min-content' }}
+                  >
+                    {cat.name}
+                  </Tabs.Tab>
+                ))}
+              </Tabs>
+            </Box>
           </Stack.Item>
 
-          {/* Search + controls */}
           <Stack.Item>
             <Section>
               <Stack>
                 <Stack.Item grow>
                   <Input
-                    placeholder={`Search ${CATEGORY_NAMES[current_category] || 'items'}...`}
+                    placeholder={`Search ${currentCatName}...`}
                     value={query}
                     onChange={(value) => setQuery(value)}
                     fluid
@@ -127,7 +108,6 @@ export function BuildMode() {
             </Section>
           </Stack.Item>
 
-          {/* Selected item preview */}
           {selected_item && (() => {
             const selItem = currentItems.find((i) => i.path === selected_item);
             if (!selItem) return null;
@@ -159,7 +139,6 @@ export function BuildMode() {
             );
           })()}
 
-          {/* Item grid */}
           <Stack.Item grow>
             <Section fill scrollable>
               {displayItems.length === 0 ? (
@@ -170,19 +149,56 @@ export function BuildMode() {
                 </NoticeBox>
               ) : (
                 <Stack wrap>
-                  {displayItems.map((item, index) => (
-                    <Stack.Item key={item.path} mb={0.5}>
-                      <ImageButton
-                        asset={['buildmode32x32', item.icon]}
-                        imageSize={32}
-                        selected={selected_item === item.path}
-                        color="transparent"
-                        tooltip={item.name}
-                        tooltipPosition="bottom"
-                        onClick={() => act('select_item', { path: item.path })}
-                      />
-                    </Stack.Item>
-                  ))}
+                  {displayItems.map((item) => {
+                    const shortPath = item.path.split('/').pop();
+                    return (
+                      <Stack.Item key={item.path} mb={1}>
+                        <Stack vertical align="center" textAlign="center" width="64px">
+                          <Stack.Item>
+                            <ImageButton
+                              asset={['buildmode32x32', item.icon]}
+                              imageSize={32}
+                              selected={selected_item === item.path}
+                              color="transparent"
+                              tooltip={
+                                <Box fontFamily="monospace" style={{ wordBreak: 'break-word' }}>
+                                  <Box>{item.name}</Box>
+                                  <Box mt={0.5} color="rgba(200, 200, 200, 0.5)">{item.path}</Box>
+                                </Box>
+                              }
+                              tooltipPosition="bottom"
+                              onClick={() => act('select_item', { path: item.path })}
+                            />
+                          </Stack.Item>
+                          <Stack.Item>
+                            <Box
+                              fontSize="10px"
+                              style={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                maxWidth: '64px',
+                              }}
+                            >
+                              {item.name}
+                            </Box>
+                            <Box
+                              fontSize="8px"
+                              color="rgba(200, 200, 200, 0.5)"
+                              style={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                maxWidth: '64px',
+                              }}
+                            >
+                              {shortPath}
+                            </Box>
+                          </Stack.Item>
+                        </Stack>
+                      </Stack.Item>
+                    );
+                  })}
                 </Stack>
               )}
             </Section>

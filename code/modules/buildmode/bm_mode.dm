@@ -3,9 +3,6 @@
 /// Corner B area selection for buildmode
 #define AREASELECT_CORNERB "corner B"
 
-/**
- * Category switch button
- */
 /atom/movable/screen/buildmode/categoryswitch
 	var/category_type
 
@@ -16,30 +13,35 @@
 
 /atom/movable/screen/buildmode/categoryswitch/update_icon_state()
 	switch(category_type)
-		if(BM_CATEGORY_TURF)
-			icon_state = "cat_turf"
-		if(BM_CATEGORY_OBJ)
-			icon_state = "cat_obj"
-		if(BM_CATEGORY_MOB)
-			icon_state = "cat_mob"
-		if(BM_CATEGORY_ITEM)
-			icon_state = "cat_item"
+		if(BM_CATEGORY_TURF) icon_state = "cat_turf"
+		if(BM_CATEGORY_OBJ) icon_state = "cat_obj"
+		if(BM_CATEGORY_MOB) icon_state = "cat_mob"
+		if(BM_CATEGORY_ITEM) icon_state = "cat_item"
+		if(BM_CATEGORY_WEAPON) icon_state = "cat_weapon"
+		if(BM_CATEGORY_CLOTHING) icon_state = "cat_clothing"
+		if(BM_CATEGORY_FOOD) icon_state = "cat_food"
+		if(BM_CATEGORY_REAGENT_CONTAINERS) icon_state = "cat_container"
+		if(BM_CATEGORY_MINERALS) icon_state = "cat_minerals"
+		if(BM_CATEGORY_GAS) icon_state = "cat_gas"
 	return ..()
 
 /atom/movable/screen/buildmode/categoryswitch/update_name()
 	switch(category_type)
-		if(BM_CATEGORY_TURF)
-			name = "Turfs"
-		if(BM_CATEGORY_OBJ)
-			name = "Objects"
-		if(BM_CATEGORY_MOB)
-			name = "Mobs"
-		if(BM_CATEGORY_ITEM)
-			name = "Items"
+		if(BM_CATEGORY_TURF) name = "Turfs"
+		if(BM_CATEGORY_OBJ) name = "Objects"
+		if(BM_CATEGORY_MOB) name = "Mobs"
+		if(BM_CATEGORY_ITEM) name = "Items"
+		if(BM_CATEGORY_WEAPON) name = "Weapons"
+		if(BM_CATEGORY_CLOTHING) name = "Clothing"
+		if(BM_CATEGORY_FOOD) name = "Food"
+		if(BM_CATEGORY_REAGENT_CONTAINERS) name = "Liquid Vessels"
+		if(BM_CATEGORY_MINERALS) name = "Minerals"
+		if(BM_CATEGORY_GAS) name = "Gas"
 	return ..()
 
 /atom/movable/screen/buildmode/categoryswitch/Click()
 	bd.change_category(category_type)
+	return 1
 
 /datum/buildmode_mode
 	var/key = "oops"

@@ -11,9 +11,9 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 
 	// SECTION UI
 	var/list/buttons
-	var/list/selected_item // Currently selected item to place
-	var/mutable_appearance/preview_appearance // Appearance for preview
-	var/image/preview_image // Image shown to the user
+	var/atom/selected_item
+	var/mutable_appearance/preview_appearance
+	var/image/preview_image
 	var/pixel_x_offset = 0
 	var/pixel_y_offset = 0
 
@@ -36,17 +36,12 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 
 	// Item browser interface
 	var/datum/tgui_item_browser/item_browser = null
-	var/list/cached_icons = list() // Cache for item icons
+	// var/list/cached_icons = list() // Убрано, так как не использовалось
 
 	// Pixel positioning mode
 	var/pixel_positioning_mode = FALSE
 	var/atom/movable/buildmode_pixel_dummy/pixel_positioning_dummy = null
 
-/**
- * Creates a new buildmode instance
- *
- * @param {client} c - The client who will use this buildmode
- */
 /datum/buildmode/New(client/c)
 	mode = new /datum/buildmode_mode/basic(src)
 	holder = c
@@ -60,12 +55,8 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	mode.enter_mode(src)
 	current_category = BM_CATEGORY_TURF
 	open_item_browser()
-	// RegisterSignal(holder.mob, COMSIG_MOUSE_ENTERED, PROC_REF(on_mouse_moved))
 	RegisterSignal(holder.mob, COMSIG_ATOM_MOUSE_ENTERED, PROC_REF(on_mouse_moved_pre))
 
-/**
- * Clean up and exit buildmode
- */
 /datum/buildmode/proc/quit()
 	mode.exit_mode(src)
 	holder.screen -= buttons
@@ -76,14 +67,9 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 		SStgui.close_uis(src)
 		item_browser = null
 	if(holder?.mob)
-		// UnregisterSignal(holder.mob, COMSIG_MOUSE_ENTERED)
 		UnregisterSignal(holder.mob, COMSIG_ATOM_MOUSE_ENTERED)
-
 	qdel(src)
 
-/**
- * Clean up resources when deleted
- */
 /datum/buildmode/Destroy()
 	clear_pixel_positioning_dummy()
 	close_switchstates()
@@ -99,17 +85,12 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 		SStgui.close_uis(src)
 		item_browser = null
 
-	cached_icons.Cut()
 	return ..()
 
-/**
- * Reset UI after client login
- */
 /datum/buildmode/proc/post_login()
 	if(QDELETED(holder))
 		return
 	holder.screen += buttons
-
 	switch(switch_state)
 		if(BM_SWITCHSTATE_MODE)
 			open_modeswitch()
@@ -120,9 +101,6 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 		if(BM_SWITCHSTATE_ITEMS)
 			open_item_browser()
 
-/**
- * Create the buildmode UI buttons
- */
 /datum/buildmode/proc/create_buttons(client/client)
 	var/datum/hud/hud_used = client?.mob?.hud_used
 	modebutton = new /atom/movable/screen/buildmode/mode(src)
@@ -135,7 +113,6 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 
 	var/atom/movable/screen/buildmode/items/itembutton = new(src)
 	buttons += itembutton
-
 	buttons += new /atom/movable/screen/buildmode/quit(src)
 
 	build_options_grid(subtypesof(/datum/buildmode_mode), modeswitch_buttons, /atom/movable/screen/buildmode/modeswitch, hud_used)
@@ -149,6 +126,8 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 		BM_CATEGORY_CLOTHING,
 		BM_CATEGORY_REAGENT_CONTAINERS,
 		BM_CATEGORY_FOOD,
+		BM_CATEGORY_MINERALS,
+		BM_CATEGORY_GAS,
 	), category_buttons, /atom/movable/screen/buildmode/categoryswitch, hud_used)
 
 /**
@@ -454,14 +433,16 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 		name = "Build Category: [category_name]"
 		return
 	switch(bd.current_category)
-		if(BM_CATEGORY_TURF)
-			category_name = "Turfs"
-		if(BM_CATEGORY_OBJ)
-			category_name = "Objects"
-		if(BM_CATEGORY_MOB)
-			category_name = "Mobs"
-		if(BM_CATEGORY_ITEM)
-			category_name = "Items"
+		if(BM_CATEGORY_TURF) category_name = "Turfs"
+		if(BM_CATEGORY_OBJ) category_name = "Objects"
+		if(BM_CATEGORY_MOB) category_name = "Mobs"
+		if(BM_CATEGORY_ITEM) category_name = "Items"
+		if(BM_CATEGORY_WEAPON) category_name = "Weapons"
+		if(BM_CATEGORY_CLOTHING) category_name = "Clothing"
+		if(BM_CATEGORY_FOOD) category_name = "Food"
+		if(BM_CATEGORY_REAGENT_CONTAINERS) category_name = "Reagents"
+		if(BM_CATEGORY_MINERALS) category_name = "Minerals"
+		if(BM_CATEGORY_GAS) category_name = "Gas"
 
 	name = "Build Category: [category_name]"
 
@@ -469,44 +450,26 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	bd.toggle_item_browser()
 	return 1
 
-/**
- * TGUI item browser — opens the TGUI window
- */
 /datum/buildmode/proc/open_item_browser()
 	switch_state = BM_SWITCHSTATE_ITEMS
 	if(!item_browser)
 		item_browser = new(src)
 	ui_interact(holder.mob)
 
-/**
- * Close the item browser
- */
 /datum/buildmode/proc/close_item_browser()
 	switch_state = BM_SWITCHSTATE_NONE
 	SStgui.close_uis(src)
 	item_browser = null
 
 /**
- * Select an item to build with
+ * Упрощенный прок выбора предмета
  */
-/datum/buildmode/proc/select_item(item_path)
+/datum/buildmode/proc/select_item(atom/item_path)
 	if(!ispath(item_path))
 		return
 	selected_item = item_path
 	create_preview_appearance(item_path)
-
-	var/name_to_show = ""
-	if(ispath(item_path, /turf))
-		var/turf/T = item_path
-		name_to_show = initial(T.name)
-	else if(ispath(item_path, /obj))
-		var/obj/O = item_path
-		name_to_show = initial(O.name)
-	else if(ispath(item_path, /mob))
-		var/mob/M = item_path
-		name_to_show = initial(M.name)
-
-	to_chat(holder.mob, "<span class='notice'>Selected [name_to_show] for building.</span>")
+	to_chat(holder.mob, span_notice("Selected [initial(item_path.name)] for building."))
 
 GAME_VERB_GLOBAL_PROC(togglebuildmode, "Toggle Build Mode", "", "Event")
 	VERB_ARG_TYPED(M, VERB_ARG_TYPE_MOB, VERB_ARG_SOURCE_WORLD, /mob)

@@ -94,7 +94,7 @@
 
 	switch(action)
 		if("select_category")
-			var/new_cat = text2num(params["category"])
+			var/new_cat = params["category"]
 			if(new_cat)
 				change_category(new_cat)
 				return TRUE
