@@ -45,19 +45,18 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	var/atom/movable/buildmode_pixel_dummy/pixel_positioning_dummy = null
 
 /datum/buildmode/New(client/c)
-	mode = new /datum/buildmode_mode/basic(src)
+	mode = new /datum/buildmode_mode/builder(src)
 	holder = c
 	buttons = list()
 	li_cb = CALLBACK(src, PROC_REF(post_login))
 	holder.persistent_client.post_login_callbacks += li_cb
 	holder.show_popup_menus = FALSE
-	create_buttons(c)
+	create_buttons()
 	holder.screen += buttons
 	holder.click_intercept = src
 	mode.enter_mode(src)
-	current_category = BM_CATEGORY_TURF
-	open_item_browser()
-	RegisterSignal(holder.mob, COMSIG_ATOM_MOUSE_ENTERED, PROC_REF(on_mouse_moved_pre))
+	if(holder?.mob)
+		RegisterSignal(holder.mob, COMSIG_ATOM_MOUSE_ENTERED, PROC_REF(on_mouse_moved_pre))
 
 /datum/buildmode/proc/quit()
 	mode.exit_mode(src)
@@ -73,14 +72,17 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	qdel(src)
 
 /datum/buildmode/Destroy()
-	clear_pixel_positioning_dummy()
 	close_switchstates()
+	close_preview()
 	holder.persistent_client.post_login_callbacks -= li_cb
+	li_cb = null
 	holder = null
+	modebutton = null
+	dirbutton = null
 	QDEL_NULL(mode)
+	QDEL_LIST(buttons)
 	QDEL_LIST(modeswitch_buttons)
 	QDEL_LIST(dirswitch_buttons)
-	QDEL_LIST(category_buttons)
 	clear_preview()
 
 	if(item_browser)
@@ -98,25 +100,21 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 			open_modeswitch()
 		if(BM_SWITCHSTATE_DIR)
 			open_dirswitch()
-		if(BM_SWITCHSTATE_CATEGORY)
-			open_categoryswitch()
 		if(BM_SWITCHSTATE_ITEMS)
 			open_item_browser()
 
-/datum/buildmode/proc/create_buttons(client/client)
-	var/datum/hud/hud_used = client?.mob?.hud_used
+/datum/buildmode/proc/create_buttons()
+	// keep a reference so we can update it upon mode switch
 	modebutton = new /atom/movable/screen/buildmode/mode(src)
 	buttons += modebutton
 	buttons += new /atom/movable/screen/buildmode/help(src)
+	// keep a reference so we can update it upon dir switch
 	dirbutton = new /atom/movable/screen/buildmode/bdir(src)
 	buttons += dirbutton
-
-	var/atom/movable/screen/buildmode/items/itembutton = new(src)
-	buttons += itembutton
 	buttons += new /atom/movable/screen/buildmode/quit(src)
-
-	build_options_grid(subtypesof(/datum/buildmode_mode), modeswitch_buttons, /atom/movable/screen/buildmode/modeswitch, hud_used)
-	build_options_grid(list(SOUTH, EAST, WEST, NORTH, NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST), dirswitch_buttons, /atom/movable/screen/buildmode/dirswitch, hud_used)
+	// build the lists of switching buttons
+	build_options_grid(subtypesof(/datum/buildmode_mode), modeswitch_buttons, /atom/movable/screen/buildmode/modeswitch)
+	build_options_grid(GLOB.alldirs, dirswitch_buttons, /atom/movable/screen/buildmode/dirswitch)
 
 /**
  * Create or update the preview appearance that follows the cursor
@@ -305,7 +303,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	mode.exit_mode(src)
 	QDEL_NULL(mode)
 	close_switchstates()
-	//close_preview()
+	close_preview()
 	mode = new newmode(src)
 	mode.enter_mode(src)
 	modebutton.update_appearance()
@@ -401,7 +399,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	var/left_click = LAZYACCESS(modifiers, LEFT_CLICK)
 	var/right_click = LAZYACCESS(modifiers, RIGHT_CLICK)
 
-	if(selected_item && !istype(mode, /datum/buildmode_mode/advanced))
+	if(selected_item && !istype(mode, /datum/buildmode_mode/builder))
 		if(left_click)
 			place_object(get_turf(object), user, modifiers)
 			return TRUE
@@ -409,7 +407,9 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 		if(right_click)
 			clear_selection()
 			return TRUE
-	return mode.handle_click(user.client, modifiers, object)
+
+	mode.handle_click(user.client, params, object)
+	return TRUE // no doing underlying actions
 
 /datum/buildmode/proc/open_item_browser()
 	switch_state = BM_SWITCHSTATE_ITEMS

@@ -15,7 +15,7 @@
 
 /atom/movable/screen/buildmode/mode
 	name = "Toggle Mode"
-	icon_state = "buildmode_basic"
+	icon_state = "buildmode_panel"
 	screen_loc = "NORTH,WEST"
 
 /atom/movable/screen/buildmode/mode/Click(location, control, params)
