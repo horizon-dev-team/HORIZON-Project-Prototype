@@ -31,14 +31,23 @@ export function BuildMode() {
     data;
 
   const currentItems = useMemo(() => {
-    const cat = categories.find((c) => c.id === current_category);
-    return cat?.items || [];
+    const currentCategory = categories.find((c) => c.id === current_category);
+    return currentCategory?.items || [];
   }, [categories, current_category]);
 
-  const currentCatName = useMemo(() => {
-    const cat = categories.find((c) => c.id === current_category);
-    return cat?.name || 'items';
+  const currentCategoryName = useMemo(() => {
+    const currentCategory = categories.find((c) => c.id === current_category);
+    return currentCategory?.name || 'items';
   }, [categories, current_category]);
+
+  const selectedItemData = useMemo(() => {
+    if (!selected_item) return null;
+    for (const currentCategory of categories) {
+      const found = currentCategory.items.find((i) => i.path === selected_item);
+      if (found) return found;
+    }
+    return null;
+  }, [categories, selected_item]);
 
   const { query, setQuery, results } = useFuzzySearch({
     searchArray: currentItems,
@@ -57,14 +66,14 @@ export function BuildMode() {
           <Stack.Item>
             <Box style={{ overflowX: 'auto', overflowY: 'hidden' }}>
               <Tabs style={{ minWidth: 'min-content' }}>
-                {categories.map((cat) => (
+                {categories.map((currentCategory) => (
                   <Tabs.Tab
-                    key={cat.id}
-                    selected={current_category === cat.id}
-                    onClick={() => act('select_category', { category: cat.id })}
+                    key={currentCategory.id}
+                    selected={current_category === currentCategory.id}
+                    onClick={() => act('select_category', { category: currentCategory.id })}
                     style={{ minWidth: 'min-content' }}
                   >
-                    {cat.name}
+                    {currentCategory.name}
                   </Tabs.Tab>
                 ))}
               </Tabs>
@@ -76,7 +85,7 @@ export function BuildMode() {
               <Stack>
                 <Stack.Item grow>
                   <Input
-                    placeholder={`Search ${currentCatName}...`}
+                    placeholder={`Search ${currentCategoryName}...`}
                     value={query}
                     onChange={(value) => setQuery(value)}
                     fluid
@@ -108,36 +117,32 @@ export function BuildMode() {
             </Section>
           </Stack.Item>
 
-          {selected_item && (() => {
-            const selItem = currentItems.find((i) => i.path === selected_item);
-            if (!selItem) return null;
-            return (
-              <Stack.Item>
-                <Section style={{ height: '4em' }}>
-                  <Stack align="center">
-                    <Stack.Item>
-                      <ImageButton
-                        asset={['buildmode32x32', selItem.icon]}
-                        imageSize={32}
-                        selected
-                      />
-                    </Stack.Item>
-                    <Stack.Item grow>
-                      <Stack vertical>
-                        <Stack.Item bold>{selItem.name}</Stack.Item>
-                        <Stack.Item
-                          italic
-                          style={{ color: 'rgba(200, 200, 200, 0.7)' }}
-                        >
-                          {selItem.path}
-                        </Stack.Item>
-                      </Stack>
-                    </Stack.Item>
-                  </Stack>
-                </Section>
-              </Stack.Item>
-            );
-          })()}
+          {selectedItemData && (
+            <Stack.Item>
+              <Section style={{ height: '4em' }}>
+                <Stack align="center">
+                  <Stack.Item>
+                    <ImageButton
+                      asset={['buildmode32x32', selectedItemData.icon]}
+                      imageSize={32}
+                      selected
+                    />
+                  </Stack.Item>
+                  <Stack.Item grow>
+                    <Stack vertical>
+                      <Stack.Item bold>{selectedItemData.name}</Stack.Item>
+                      <Stack.Item
+                        italic
+                        style={{ color: 'rgba(200, 200, 200, 0.7)' }}
+                      >
+                        {selectedItemData.path}
+                      </Stack.Item>
+                    </Stack>
+                  </Stack.Item>
+                </Stack>
+              </Section>
+            </Stack.Item>
+          )}
 
           <Stack.Item grow>
             <Section fill scrollable>

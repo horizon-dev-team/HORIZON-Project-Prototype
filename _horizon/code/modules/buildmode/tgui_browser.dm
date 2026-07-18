@@ -56,9 +56,9 @@
 
 	var/list/categories = list()
 	for(var/list/category in GLOB.buildmode_items)
-		var/list/cat_items = list()
+		var/list/category_items = list()
 		for(var/list/item in category["items"])
-			cat_items += list(list(
+			category_items += list(list(
 				"path" = "[item["path"]]",
 				"name" = item["name"],
 				"icon" = item["icon"],
@@ -66,7 +66,7 @@
 		categories += list(list(
 			"id" = category["id"],
 			"name" = category["name"],
-			"items" = cat_items,
+			"items" = category_items,
 		))
 	data["categories"] = categories
 
@@ -94,9 +94,9 @@
 
 	switch(action)
 		if("select_category")
-			var/new_cat = params["category"]
-			if(new_cat)
-				change_category(new_cat)
+			var/new_category = params["category"]
+			if(new_category)
+				change_category(new_category)
 				return TRUE
 
 		if("select_item")

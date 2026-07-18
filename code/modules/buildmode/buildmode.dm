@@ -304,6 +304,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	QDEL_NULL(mode)
 	close_switchstates()
 	close_preview()
+	clear_selection()
 	mode = new newmode(src)
 	mode.enter_mode(src)
 	modebutton.update_appearance()
@@ -314,11 +315,11 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	dirbutton.update_appearance()
 	update_preview_position()
 	return 1
-/*
+
 /datum/buildmode/proc/InterceptClickOn(mob/user, params, atom/object)
 	mode.handle_click(user.client, params, object)
 	return TRUE // no doing underlying actions
-*/
+
 /**
  * Update the preview object's position and appearance
  */
@@ -381,36 +382,6 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 		qdel(pixel_positioning_dummy)
 		pixel_positioning_dummy = null
 
-/**
- * Intercept clicks to handle buildmode functionality
- *
- * @param {mob} user - The user clicking
- * @param {string} params - Click parameters
- * @param {atom} object - The object clicked on
- * @return {bool} - Whether the click was handled
- */
-/datum/buildmode/proc/InterceptClickOn(mob/user, params, atom/object)
-	var/list/modifiers = params
-	if(istext(modifiers))
-		modifiers = params2list(modifiers)
-	else if(!islist(modifiers))
-		modifiers = list()
-
-	var/left_click = LAZYACCESS(modifiers, LEFT_CLICK)
-	var/right_click = LAZYACCESS(modifiers, RIGHT_CLICK)
-
-	if(selected_item && !istype(mode, /datum/buildmode_mode/builder))
-		if(left_click)
-			place_object(get_turf(object), user, modifiers)
-			return TRUE
-
-		if(right_click)
-			clear_selection()
-			return TRUE
-
-	mode.handle_click(user.client, params, object)
-	return TRUE // no doing underlying actions
-
 /datum/buildmode/proc/open_item_browser()
 	switch_state = BM_SWITCHSTATE_ITEMS
 	if(!item_browser)
@@ -421,16 +392,6 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	switch_state = BM_SWITCHSTATE_NONE
 	SStgui.close_uis(src)
 	item_browser = null
-
-/**
- * Упрощенный прок выбора предмета
- */
-/datum/buildmode/proc/select_item(atom/item_path)
-	if(!ispath(item_path))
-		return
-	selected_item = item_path
-	create_preview_appearance(item_path)
-	to_chat(holder.mob, span_notice("Selected [initial(item_path.name)] for building."))
 
 GAME_VERB_GLOBAL_PROC(togglebuildmode, "Toggle Build Mode", "", "Event")
 	VERB_ARG_TYPED(M, VERB_ARG_TYPE_MOB, VERB_ARG_SOURCE_WORLD, /mob)

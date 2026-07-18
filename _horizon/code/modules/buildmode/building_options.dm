@@ -178,6 +178,16 @@
 		log_admin("[key_name(user)] placed [path] at [AREACOORD(location)]")
 
 /**
+ * Упрощенный прок выбора предмета
+ */
+/datum/buildmode/proc/select_item(atom/item_path)
+	if(!ispath(item_path))
+		return
+	selected_item = item_path
+	create_preview_appearance(item_path)
+	to_chat(holder.mob, span_notice("Selected [initial(item_path.name)] for building."))
+
+/**
  * Clear the current item selection
  */
 /datum/buildmode/proc/clear_selection()
