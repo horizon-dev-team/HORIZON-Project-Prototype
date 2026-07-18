@@ -1,3 +1,7 @@
+#define BM_SWITCHSTATE_NONE 0
+#define BM_SWITCHSTATE_MODE 1
+#define BM_SWITCHSTATE_DIR 2
+
 // Global cache for appearance objects
 GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 
@@ -38,7 +42,6 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 
 	// Item browser interface
 	var/datum/tgui_item_browser/item_browser = null
-	// var/list/cached_icons = list() // Убрано, так как не использовалось
 
 	// Pixel positioning mode
 	var/pixel_positioning_mode = FALSE
@@ -94,14 +97,14 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 /datum/buildmode/proc/post_login()
 	if(QDELETED(holder))
 		return
+	// since these will get wiped upon login
 	holder.screen += buttons
+	// re-open the according switch mode
 	switch(switch_state)
 		if(BM_SWITCHSTATE_MODE)
 			open_modeswitch()
 		if(BM_SWITCHSTATE_DIR)
 			open_dirswitch()
-		if(BM_SWITCHSTATE_ITEMS)
-			open_item_browser()
 
 /datum/buildmode/proc/create_buttons()
 	// keep a reference so we can update it upon mode switch
@@ -211,13 +214,13 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 
 // this creates a nice offset grid for choosing between buildmode options,
 // because going "click click click ah hell" sucks.
-/datum/buildmode/proc/build_options_grid(list/elements, list/buttonslist, buttontype, datum/hud/hud_used)
+/datum/buildmode/proc/build_options_grid(list/elements, list/buttonslist, buttontype)
 	var/pos_idx = 0
 	for(var/thing in elements)
 		var/x = pos_idx % switch_width
 		var/y = FLOOR(pos_idx / switch_width, 1)
 		var/atom/movable/screen/buildmode/B = new buttontype(src, thing)
-		// Extra .5 for a nice offset look
+		// extra .5 for a nice offset look
 		B.screen_loc = "NORTH-[(1 + 0.5 + y*1.5)],WEST+[0.5 + x*1.5]"
 		buttonslist += B
 		pos_idx++
@@ -231,6 +234,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 			close_modeswitch()
 		if(BM_SWITCHSTATE_DIR)
 			close_dirswitch()
+
 /**
  * Toggle the mode selection UI
  */
@@ -383,13 +387,11 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 		pixel_positioning_dummy = null
 
 /datum/buildmode/proc/open_item_browser()
-	switch_state = BM_SWITCHSTATE_ITEMS
 	if(!item_browser)
 		item_browser = new(src)
 	ui_interact(holder.mob)
 
 /datum/buildmode/proc/close_item_browser()
-	switch_state = BM_SWITCHSTATE_NONE
 	SStgui.close_uis(src)
 	item_browser = null
 
@@ -447,3 +449,7 @@ GAME_VERB_GLOBAL_PROC(togglebuildmode, "Toggle Build Mode", "", "Event")
 		parent_buildmode.pixel_x_offset = offsets["x"]
 		parent_buildmode.pixel_y_offset = offsets["y"]
 		parent_buildmode.update_preview_position()
+
+#undef BM_SWITCHSTATE_NONE
+#undef BM_SWITCHSTATE_MODE
+#undef BM_SWITCHSTATE_DIR

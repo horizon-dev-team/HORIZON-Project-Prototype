@@ -12,7 +12,7 @@ GLOBAL_LIST_INIT(buildmode_items, build_buildmode_items())
 	categories += list(list("id" = BM_CATEGORY_CLOTHING, "name" = "Clothing", "items" = build_category_items(/obj/item/clothing)))
 	categories += list(list("id" = BM_CATEGORY_REAGENT_CONTAINERS, "name" = "Reagents", "items" = build_category_items(/obj/item/reagent_containers, list(/obj/item/food))))
 	categories += list(list("id" = BM_CATEGORY_FOOD, "name" = "Food", "items" = build_category_items(/obj/item/food)))
-	categories += list(list("id" = BM_CATEGORY_MINERALS, "name" = "Minerals", "items" = build_category_items(/obj/item/stack/sheet)))
+	categories += list(list("id" = BM_CATEGORY_MATERIALS, "name" = "Minerals", "items" = build_category_items(/obj/item/stack/sheet)))
 	categories += list(list("id" = BM_CATEGORY_GAS, "name" = "Gas", "items" = build_category_items(list(/obj/machinery/portable_atmospherics/canister, /obj/machinery/atmospherics/miner))))
 
 	return categories

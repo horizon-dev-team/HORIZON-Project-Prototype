@@ -37,7 +37,6 @@
 	. = ..()
 	if(item_browser)
 		item_browser.ui_open = FALSE
-	switch_state = BM_SWITCHSTATE_NONE
 
 /datum/buildmode/ui_state(mob/user)
 	return ADMIN_STATE(R_BUILD)
