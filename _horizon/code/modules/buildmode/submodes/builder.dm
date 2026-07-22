@@ -50,7 +50,6 @@
 		if(left_click)
 			var/turf = get_turf(object)
 			log_admin("Build Mode: [key_name(c)] modified [turf] in [AREACOORD(object)] to [object.type]")
-			object.setDir(BM.build_dir)
 			BM.place_object(turf, c, modifiers)
 			return TRUE
 		if(right_click)
