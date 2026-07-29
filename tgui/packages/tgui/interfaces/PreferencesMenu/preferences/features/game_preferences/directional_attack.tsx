@@ -1,13 +1,9 @@
-import { createDropdownInput, type Feature } from '../base';
+import { FeatureChoiced } from '../base';
+import { FeatureDropdownInput } from '../dropdowns';
 
-export const directional_attack: Feature<number> = {
+export const directional_attack: FeatureChoiced = {
   name: 'Directional attack',
   category: 'GAMEPLAY',
-  description:
-    'Directional attacks let you hit a target by clicking past it, as long as it is within melee range.',
-  component: createDropdownInput({
-    2: 'Enabled',
-    1: 'Only against simple mobs',
-    0: 'Disabled',
-  }),
+  description: 'Directional attacks let you hit a target by clicking past it, as long as it is within melee range.',
+  component: FeatureDropdownInput,
 };

@@ -1,7 +1,4 @@
-/client
-	var/directional_attack
-
-/*!
+/*
  * This element allows the mob its attached to the ability to click an adjacent mob by clicking a distant atom
  * that is in the general direction relative to the parent.
  */
@@ -28,12 +25,17 @@
 /datum/element/directional_attack/proc/on_ranged_attack(mob/living/user, atom/target, list/modifiers)
 	SIGNAL_HANDLER
 
+/*
 	switch(user?.client?.directional_attack)
 		if("Only against simple mobs") if(iscarbon(target))	return
 		if("Enabled") // just go on
 		else //return
+*/
 
 	if(!user.combat_mode || QDELETED(target))
+		return
+
+	if(!user?.client?.prefs?.read_preference(/datum/preference/choiced/directional_attack))
 		return
 
 	var/turf/turf_to_check = get_turf(user)
@@ -46,12 +48,10 @@
 		var/obj/effect/temp_visual/hierophant/squares/sqwr = new(turf_to_check)
 		sqwr.say("[C]")
 
-		for(var/mob/living/target_mob in turf_to_check)
-			if(target_mob.stat == DEAD)
-				continue
-			// This is here to undo the +1 click cooldown on ClickOn()
-			user.next_click = world.time - 1
-			INVOKE_ASYNC(user, TYPE_PROC_REF(/mob, ClickOn), target_mob, list2params(modifiers))
-			return COMPONENT_CANCEL_ATTACK_CHAIN
-
-
+	for(var/mob/living/target_mob in turf_to_check)
+		if(target_mob.stat == DEAD)
+			continue
+		// This is here to undo the +1 click cooldown on ClickOn()
+		user.next_click = world.time - 1
+		INVOKE_ASYNC(user, TYPE_PROC_REF(/mob, ClickOn), target_mob, list2params(modifiers))
+		return COMPONENT_CANCEL_ATTACK_CHAIN
