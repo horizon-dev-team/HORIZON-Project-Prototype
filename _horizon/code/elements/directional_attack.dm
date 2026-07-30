@@ -25,31 +25,28 @@
 /datum/element/directional_attack/proc/on_ranged_attack(mob/living/user, atom/target, list/modifiers)
 	SIGNAL_HANDLER
 
-/*
-	switch(user?.client?.directional_attack)
-		if("Only against simple mobs") if(iscarbon(target))	return
-		if("Enabled") // just go on
-		else //return
-*/
+	var/dir_attack_pref = user?.client?.prefs?.read_preference(/datum/preference/choiced/directional_attack)
+	if(!dir_attack_pref || dir_attack_pref == DIRECTIONAL_ATTACK_OFF || !user.combat_mode || QDELETED(target))
+		return
 
 	if(!user.combat_mode || QDELETED(target))
 		return
 
-	if(!user?.client?.prefs?.read_preference(/datum/preference/choiced/directional_attack))
-		return
-
 	var/turf/turf_to_check = get_turf(user)
+
+// Дебаг
 	var/obj/item/user_item = user.get_active_held_item()
 	var/itemreach = isitem(user.get_active_held_item()) ? user_item.reach : 1
-
 	for(var/C in 1 to itemreach)
 		turf_to_check = get_step(turf_to_check, angle2dir(get_angle(turf_to_check, parse_caught_click_modifiers(modifiers, get_turf(user), user.client))))
-
 		var/obj/effect/temp_visual/hierophant/squares/sqwr = new(turf_to_check)
 		sqwr.say("[C]")
+// Дебаг
 
 	for(var/mob/living/target_mob in turf_to_check)
-		if(target_mob.stat == DEAD)
+		if(!target_mob || target_mob.stat == DEAD)
+			continue
+		if((dir_attack_pref == DIRECTIONAL_ATTACK_ONLY_MOBS) && iscarbon(target_mob))
 			continue
 		// This is here to undo the +1 click cooldown on ClickOn()
 		user.next_click = world.time - 1

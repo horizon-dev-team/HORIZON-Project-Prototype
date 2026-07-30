@@ -1,10 +1,3 @@
-// ALL directional attack over ALL.
-#define DIRECTIONAL_ATTACK_ON "Enabled"
-// The directional attack over mobs only.
-#define DIRECTIONAL_ATTACK_ONLY_MOBS "Only against simple mobs"
-// No directional attack.
-#define DIRECTIONAL_ATTACK_OFF "Disabled"
-
 /// Boundary for how many z levels down to render properly before we start going cheapo mode
 /datum/preference/choiced/directional_attack
 	category = PREFERENCE_CATEGORY_GAME_PREFERENCES
@@ -16,7 +9,3 @@
 
 /datum/preference/choiced/directional_attack/create_default_value()
 	return DIRECTIONAL_ATTACK_ON
-
-#undef DIRECTIONAL_ATTACK_ON
-#undef DIRECTIONAL_ATTACK_ONLY_MOBS
-#undef DIRECTIONAL_ATTACK_OFF
