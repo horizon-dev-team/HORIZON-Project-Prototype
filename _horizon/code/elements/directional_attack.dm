@@ -7,7 +7,7 @@
 	if(!ismob(target))
 		return ELEMENT_INCOMPATIBLE
 
-	RegisterSignals(target, list(COMSIG_MOB_ATTACK_RANGED, COMSIG_MOB_ATTACK_RANGED_SECONDARY, COMSIG_MOB_RANGED_ITEM_INTERACTION, COMSIG_MOB_RANGED_ITEM_INTERACTION_SECONDARY), PROC_REF(on_ranged_attack))
+	RegisterSignals(target, list(COMSIG_MOB_ATTACK_RANGED, COMSIG_MOB_ATTACK_RANGED_SECONDARY, COMSIG_MOB_RANGED_ITEM_INTERACTION, COMSIG_MOB_RANGED_ITEM_INTERACTION_SECONDARY), PROC_REF(on_ranged_attack), override = TRUE)
 
 /datum/element/directional_attack/Detach(datum/source, ...)
 	. = ..()
@@ -32,16 +32,9 @@
 	if(!user.combat_mode || QDELETED(target))
 		return
 
-	var/turf/turf_to_check = get_turf(user)
-
-// Дебаг
-	var/obj/item/user_item = user.get_active_held_item()
-	var/itemreach = isitem(user.get_active_held_item()) ? user_item.reach : 1
-	for(var/C in 1 to itemreach)
-		turf_to_check = get_step(turf_to_check, angle2dir(get_angle(turf_to_check, parse_caught_click_modifiers(modifiers, get_turf(user), user.client))))
-		var/obj/effect/temp_visual/hierophant/squares/sqwr = new(turf_to_check)
-		sqwr.say("[C]")
-// Дебаг
+	var/turf/turf_to_check = get_step(user, angle2dir(get_angle(user, parse_caught_click_modifiers(modifiers, get_turf(user), user.client))))
+	if(!turf_to_check?.IsReachableBy(user))
+		return
 
 	for(var/mob/living/target_mob in turf_to_check)
 		if(!target_mob || target_mob.stat == DEAD)
