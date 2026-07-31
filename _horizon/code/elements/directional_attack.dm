@@ -29,9 +29,6 @@
 	if(!dir_attack_pref || dir_attack_pref == DIRECTIONAL_ATTACK_OFF || !user.combat_mode || QDELETED(target))
 		return
 
-	if(!user.combat_mode || QDELETED(target))
-		return
-
 	var/turf/turf_to_check = get_step(user, angle2dir(get_angle(user, parse_caught_click_modifiers(modifiers, get_turf(user), user.client))))
 	if(!turf_to_check?.IsReachableBy(user))
 		return
