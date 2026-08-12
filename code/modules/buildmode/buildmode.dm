@@ -48,7 +48,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	var/atom/movable/buildmode_pixel_dummy/pixel_positioning_dummy = null
 
 /datum/buildmode/New(client/c)
-	mode = new /datum/buildmode_mode/builder(src)
+	mode = new /datum/buildmode_mode/advanced(src)
 	holder = c
 	buttons = list()
 	li_cb = CALLBACK(src, PROC_REF(post_login))

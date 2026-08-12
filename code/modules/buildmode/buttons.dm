@@ -15,7 +15,7 @@
 
 /atom/movable/screen/buildmode/mode
 	name = "Toggle Mode"
-	icon_state = "buildmode_panel" // [HORIZON-EDIT] - BUILDMOD_PANEL
+	icon_state = "buildmode_advanced" // [HORIZON-EDIT] - BUILDMOD_PANEL
 	screen_loc = "NORTH,WEST"
 
 /atom/movable/screen/buildmode/mode/Click(location, control, params)
