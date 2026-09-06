@@ -72,13 +72,13 @@
 		debris_visuals.particles.position = generator(GEN_CIRCLE, position_offset, position_offset)
 		debris_visuals.particles.velocity = list(x_component, y_component)
 		debris_visuals.layer = ABOVE_ALL_MOB_LAYER + 0.02
-		SET_PLANE_W_SCALAR(debris_visuals, ABOVE_GAME_PLANE, GET_TURF_PLANE_OFFSET(source))
+		SET_PLANE_W_SCALAR(debris_visuals, ABOVE_GAME_PLANE, GET_TURF_PLANE_OFFSET(P))
 		debris_visuals.particles.icon_state = debris
 		debris_visuals.particles.count = debris_amount
 		debris_visuals.particles.spawning = debris_amount
 		debris_visuals.particles.scale = debris_scale
 	smoke_visuals.layer = ABOVE_ALL_MOB_LAYER + 0.01
-	SET_PLANE_W_SCALAR(smoke_visuals, ABOVE_GAME_PLANE, GET_TURF_PLANE_OFFSET(source))
+	SET_PLANE_W_SCALAR(smoke_visuals, ABOVE_GAME_PLANE, GET_TURF_PLANE_OFFSET(P))
 	addtimer(CALLBACK(src, PROC_REF(remove_ping), src, smoke_visuals, debris_visuals), 0.7 SECONDS)
 
 /datum/element/debris/proc/remove_ping(hit, obj/effect/abstract/particle_holder/smoke_visuals, obj/effect/abstract/particle_holder/debris_visuals)

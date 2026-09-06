@@ -217,7 +217,7 @@
 
 	var/obj/item/bodypart/hit_bodypart = get_bodypart(check_hit_limb_zone_name(def_zone))
 	if (get_blood_volume() && (isnull(hit_bodypart) || hit_bodypart.can_bleed()))
-		create_splatter(proj.angle)  # [HORIZON-PORT] TGMC PR #12752: pass angle directly
+		create_splatter(proj.angle)
 		if(prob(33))
 			add_splatter_floor(get_turf(src))
 		return

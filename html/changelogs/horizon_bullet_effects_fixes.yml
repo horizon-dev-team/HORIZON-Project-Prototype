@@ -1,7 +1,0 @@
-author: "horizon-dev-sync[bot]"
-delete-after: True
-changes:
-  - bugfix: "Gun smoke particles now actually spawn when firing — previously the smoke code was placed after an early-return in shoot_live_shot() so it never ran for silenced guns, and the icon_state 'smoke5' didn't exist in 96x96.dmi."
-  - rscadd: "Ported blood splatter particle effects from TGMC PR #12752. Blood splatter on projectile hit now uses cached /particles/splatter instances (per blood color) and positions based on the bullet angle, not just the 4 cardinal directions."
-  - bugfix: "Bullet impact effects (smoke + debris) at steep angles now render above mobs and other tall objects. Previously they were on ABOVE_OBJ_LAYER which could be occluded by mobs/structures on the same plane."
-  - code_imp: "Wired up add_debris_element() globally via /obj/Initialize() so the debris element actually gets attached to all objects, not just the ones that explicitly call it."

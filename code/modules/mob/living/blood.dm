@@ -625,7 +625,7 @@
 	return (donor_blood_data?.type_key() in patient_blood_data?.compatible_types)
 
 /// Create a small visual-only blood splatter
-/mob/living/proc/create_splatter(splatter_angle = 0)  # [HORIZON-PORT] TGMC PR #12752: pass angle (degrees) instead of dir
+/mob/living/proc/create_splatter(splatter_angle = 0)
 	// Check for TRAIT_NOBLOOD
 	if (!can_bleed()) // Even if we can't cover turfs, we still can add DNA to everything our blood hits
 		return

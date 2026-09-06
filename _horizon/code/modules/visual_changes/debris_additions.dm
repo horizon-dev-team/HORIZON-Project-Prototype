@@ -104,12 +104,6 @@
 	AddElement(/datum/element/debris, DEBRIS_WOOD, -10, 5)
 
 // [HORIZON-FIX] Wire up add_debris_element() globally so /obj and /turf/closed
-// actually get their debris element attached during Initialize. TGMC PR #12752
-// does this same wiring in code/game/objects/objs.dm and code/game/turfs/closed.dm.
-// We do it here so we don't have to touch upstream files.
 /obj/Initialize(mapload)
 	. = ..()
 	add_debris_element()
-
-// Note: /turf/closed/Initialize() is already overridden below to call add_debris_element(),
-// so we don't need a separate global hook for turfs.

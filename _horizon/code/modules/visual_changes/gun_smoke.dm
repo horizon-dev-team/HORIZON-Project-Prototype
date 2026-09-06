@@ -1,6 +1,6 @@
 /particles/firing_smoke
-	icon = 'icons/effects/96x96.dmi'
-	icon_state = "smoke"  # [HORIZON-FIX] 96x96.dmi only has smoke/smoke2, no smoke5
+	icon = '_horizon/icons/effect/96x96.dmi'
+	icon_state = "smoke5"
 	width = 500
 	height = 500
 	count = 5
