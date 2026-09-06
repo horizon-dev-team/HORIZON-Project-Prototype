@@ -195,13 +195,8 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	// Update the image's location
 	preview_image.loc = turf
 
-	// Move pixel dummy and handle tile crossing
-	if(pixel_positioning_dummy && params)
+	if(pixel_positioning_dummy)
 		pixel_positioning_dummy.forceMove(turf)
-		var/list/offsets = get_pixel_offsets_from_screenloc(params)
-		if(offsets)
-			pixel_x_offset = offsets["x"]
-			pixel_y_offset = offsets["y"]
 
 	if(!pixel_positioning_mode)
 		pixel_x_offset = 0
@@ -412,11 +407,14 @@ GAME_VERB_GLOBAL_PROC(togglebuildmode, "Toggle Build Mode", "", "Event")
  * Dummy object for tracking mouse movement in pixel positioning mode
  */
 /atom/movable/buildmode_pixel_dummy
-	name = "pixel positioning tracker"
+	name = ""
 	icon = 'icons/effects/alphacolors.dmi'
+	icon_state = "white"
 	alpha = 1
 	glide_size = 1000
 	plane = HUD_PLANE
+	mouse_opacity = MOUSE_OPACITY_OPAQUE
+	flags_1 = NO_SCREENTIPS_1
 	var/datum/buildmode/parent_buildmode
 	var/skip = FALSE
 
