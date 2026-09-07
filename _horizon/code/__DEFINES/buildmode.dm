@@ -1,6 +1,3 @@
-// Пример файла для подключения модулей дефайнов.
-
-// Category Types
 #define BM_CATEGORY_TURF "turf"
 #define BM_CATEGORY_OBJ "obj"
 #define BM_CATEGORY_MOB "mob"

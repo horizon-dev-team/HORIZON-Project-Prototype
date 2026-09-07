@@ -33,7 +33,7 @@
 		log_admin("[key_name(user)] placed [path] at [AREACOORD(location)]")
 
 /**
- * Упрощенный прок выбора предмета
+ * Simplified item selection proc
  */
 /datum/buildmode/proc/select_item(atom/item_path)
 	if(!ispath(item_path))

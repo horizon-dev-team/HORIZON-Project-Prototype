@@ -8,25 +8,17 @@
 
 	var/datum/buildmode/BM
 
-	// Corner selection component
+	// would corner selection work better as a component?
 	var/use_corner_selection = FALSE
 	var/list/preview
 	var/turf/cornerA
 	var/turf/cornerB
 
-/**
- * Create a new buildmode mode
- *
- * @param {datum/buildmode} BM - The buildmode datum this mode belongs to
- */
 /datum/buildmode_mode/New(datum/buildmode/BM)
 	src.BM = BM
 	preview = list()
 	return ..()
 
-/**
- * Clean up resources when deleted
- */
 /datum/buildmode_mode/Destroy()
 	cornerA = null
 	cornerB = null
@@ -34,43 +26,18 @@
 	preview = null
 	return ..()
 
-/**
- * Called when entering this mode
- *
- * @param {datum/buildmode} BM - The buildmode datum
- */
 /datum/buildmode_mode/proc/enter_mode(datum/buildmode/BM)
 	return
 
-/**
- * Called when exiting this mode
- *
- * @param {datum/buildmode} BM - The buildmode datum
- */
 /datum/buildmode_mode/proc/exit_mode(datum/buildmode/BM)
 	return
 
-/**
- * Get the icon state for the mode button
- *
- * @return {string} - The icon state to use
- */
 /datum/buildmode_mode/proc/get_button_iconstate()
 	return "buildmode_[key]"
 
-/**
- * Show help for this mode
- *
- * @param {client} c - The client to show help to
- */
 /datum/buildmode_mode/proc/show_help(client/c)
 	CRASH("No help defined for [src.type], yell at a coder")
 
-/**
- * Change mode settings
- *
- * @param {client} c - The client changing settings
- */
 /datum/buildmode_mode/proc/change_settings(client/c)
 	to_chat(c, span_warning("There is no configuration available for this mode"))
 	return

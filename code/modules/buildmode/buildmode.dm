@@ -15,40 +15,38 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 
 	// SECTION UI
 	var/list/buttons
-	var/atom/selected_item
-	var/mutable_appearance/preview_appearance
-	var/image/preview_image
-	var/pixel_x_offset = 0
-	var/pixel_y_offset = 0
 
 	// Switching management
 	var/switch_state = BM_SWITCHSTATE_NONE
 	var/switch_width = 4
-
 	// modeswitch UI
 	var/atom/movable/screen/buildmode/mode/modebutton
 	var/list/modeswitch_buttons = list()
-
 	// dirswitch UI
 	var/atom/movable/screen/buildmode/bdir/dirbutton
 	var/list/dirswitch_buttons = list()
 	/// item preview for selected item
 	var/atom/movable/screen/buildmode/preview_item/preview
 
+// [HORIZON-ADD]
+	var/atom/selected_item
+	var/mutable_appearance/preview_appearance
+	var/image/preview_image
+	var/pixel_x_offset = 0
+	var/pixel_y_offset = 0
 	// Category selection UI
 	var/atom/movable/screen/buildmode/category/categorybutton
 	var/list/category_buttons = list()
 	var/current_category = null
-
 	// Item browser interface
 	var/datum/tgui_item_browser/item_browser = null
-
 	// Pixel positioning mode
 	var/pixel_positioning_mode = FALSE
 	var/atom/movable/buildmode_pixel_dummy/pixel_positioning_dummy = null
+// [/HORIZON-ADD]
 
 /datum/buildmode/New(client/c)
-	mode = new /datum/buildmode_mode/advanced(src)
+	mode = new /datum/buildmode_mode/advanced(src) // [HORIZON-EDIT]
 	holder = c
 	buttons = list()
 	li_cb = CALLBACK(src, PROC_REF(post_login))
@@ -87,16 +85,12 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	QDEL_LIST(modeswitch_buttons)
 	QDEL_LIST(dirswitch_buttons)
 	clear_preview()
-
 	if(item_browser)
 		SStgui.close_uis(src)
 		item_browser = null
-
 	return ..()
 
 /datum/buildmode/proc/post_login()
-	if(QDELETED(holder))
-		return
 	// since these will get wiped upon login
 	holder.screen += buttons
 	// re-open the according switch mode
@@ -118,94 +112,6 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	// build the lists of switching buttons
 	build_options_grid(subtypesof(/datum/buildmode_mode), modeswitch_buttons, /atom/movable/screen/buildmode/modeswitch)
 	build_options_grid(GLOB.alldirs, dirswitch_buttons, /atom/movable/screen/buildmode/dirswitch)
-
-/**
- * Create or update the preview appearance that follows the cursor
- *
- * @param {path} item_path - The path of the item to preview
- */
-/datum/buildmode/proc/create_preview_appearance(item_path)
-	clear_preview()
-	if(GLOB.buildmode_appearance_cache[item_path])
-		preview_appearance = new
-		preview_appearance.appearance = GLOB.buildmode_appearance_cache[item_path]
-	else
-		preview_appearance = new
-
-		if(ispath(item_path, /turf))
-			var/turf/T = item_path
-			preview_appearance.icon = initial(T.icon)
-			preview_appearance.icon_state = initial(T.icon_state)
-			preview_appearance.dir = build_dir
-			preview_appearance.color = LIGHT_COLOR_LIGHT_CYAN
-		else
-			var/atom/movable/temp_atom
-			temp_atom = new item_path(null) // Create in nullspace
-			preview_appearance.appearance = temp_atom.appearance
-			preview_appearance.dir = build_dir
-			preview_appearance.color = LIGHT_COLOR_LIGHT_CYAN
-			qdel(temp_atom) // Clean up
-
-		GLOB.buildmode_appearance_cache[item_path] = preview_appearance.appearance
-
-	preview_image = new
-	preview_image.appearance = preview_appearance
-	preview_image.alpha = 150
-	preview_image.plane = ABOVE_LIGHTING_PLANE
-	preview_image.layer = FLOAT_LAYER
-	preview_image.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-
-	holder.images += preview_image
-
-	update_preview_position()
-
-/proc/get_pixel_offsets_from_screenloc(params)
-	var/list/modifiers = params2list(params)
-	var/screen_loc = LAZYACCESS(modifiers, SCREEN_LOC)
-
-	if(!screen_loc || !istext(screen_loc))
-		return null
-
-	var/list/coords = splittext(screen_loc, ",")
-	if(length(coords) != 2)
-		return null
-
-	var/list/x_parts = splittext(coords[1], ":") // screen-loc is y,x order!
-	var/list/y_parts = splittext(coords[2], ":")
-
-	if(length(x_parts) != 2 || length(y_parts) != 2)
-		return null
-
-	var/x_offset = text2num(x_parts[2]) - 16
-	var/y_offset = text2num(y_parts[2]) - 16
-
-	return list("x" = x_offset, "y" = y_offset)
-
-/datum/buildmode/proc/on_mouse_moved_pre(datum/source, atom/atom, params)
-	if(istype(source, /atom/movable/buildmode_pixel_dummy))
-		return
-	on_mouse_moved(source, get_turf(atom), params)
-
-/datum/buildmode/proc/on_mouse_moved(datum/source, turf/turf, params)
-	if(turf == preview_image?.loc)
-		return
-	if(!preview_image || !turf)
-		return
-
-	// Update the image's location
-	preview_image.loc = turf
-
-	if(pixel_positioning_dummy)
-		pixel_positioning_dummy.forceMove(turf)
-
-	if(!pixel_positioning_mode)
-		pixel_x_offset = 0
-		pixel_y_offset = 0
-
-	// Apply the pixel offsets
-	preview_image.pixel_x = pixel_x_offset
-	preview_image.pixel_y = pixel_y_offset
-
 
 // this creates a nice offset grid for choosing between buildmode options,
 // because going "click click click ah hell" sucks.
@@ -319,6 +225,95 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	mode.handle_click(user.client, params, object)
 	return TRUE // no doing underlying actions
 
+
+/**
+ * Create or update the preview appearance that follows the cursor
+ *
+ * @param {path} item_path - The path of the item to preview
+ */
+/datum/buildmode/proc/create_preview_appearance(item_path)
+	clear_preview()
+	if(GLOB.buildmode_appearance_cache[item_path])
+		preview_appearance = new
+		preview_appearance.appearance = GLOB.buildmode_appearance_cache[item_path]
+	else
+		preview_appearance = new
+
+		if(ispath(item_path, /turf))
+			var/turf/T = item_path
+			preview_appearance.icon = initial(T.icon)
+			preview_appearance.icon_state = initial(T.icon_state)
+			preview_appearance.dir = build_dir
+			preview_appearance.color = LIGHT_COLOR_LIGHT_CYAN
+		else
+			var/atom/movable/temp_atom
+			temp_atom = new item_path(null) // Create in nullspace
+			preview_appearance.appearance = temp_atom.appearance
+			preview_appearance.dir = build_dir
+			preview_appearance.color = LIGHT_COLOR_LIGHT_CYAN
+			qdel(temp_atom) // Clean up
+
+		GLOB.buildmode_appearance_cache[item_path] = preview_appearance.appearance
+
+	preview_image = new
+	preview_image.appearance = preview_appearance
+	preview_image.alpha = 150
+	preview_image.plane = ABOVE_LIGHTING_PLANE
+	preview_image.layer = FLOAT_LAYER
+	preview_image.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+
+	holder.images += preview_image
+
+	update_preview_position()
+
+/proc/get_pixel_offsets_from_screenloc(params)
+	var/list/modifiers = params2list(params)
+	var/screen_loc = LAZYACCESS(modifiers, SCREEN_LOC)
+
+	if(!screen_loc || !istext(screen_loc))
+		return null
+
+	var/list/coords = splittext(screen_loc, ",")
+	if(length(coords) != 2)
+		return null
+
+	var/list/x_parts = splittext(coords[1], ":") // screen-loc is y,x order!
+	var/list/y_parts = splittext(coords[2], ":")
+
+	if(length(x_parts) != 2 || length(y_parts) != 2)
+		return null
+
+	var/x_offset = text2num(x_parts[2]) - 16
+	var/y_offset = text2num(y_parts[2]) - 16
+
+	return list("x" = x_offset, "y" = y_offset)
+
+/datum/buildmode/proc/on_mouse_moved_pre(datum/source, atom/atom, params)
+	if(istype(source, /atom/movable/buildmode_pixel_dummy))
+		return
+	on_mouse_moved(source, get_turf(atom), params)
+
+/datum/buildmode/proc/on_mouse_moved(datum/source, turf/turf, params)
+	if(turf == preview_image?.loc)
+		return
+	if(!preview_image || !turf)
+		return
+
+	// Update the image's location
+	preview_image.loc = turf
+
+	if(pixel_positioning_dummy)
+		pixel_positioning_dummy.forceMove(turf)
+
+	if(!pixel_positioning_mode)
+		pixel_x_offset = 0
+		pixel_y_offset = 0
+
+	// Apply the pixel offsets
+	preview_image.pixel_x = pixel_x_offset
+	preview_image.pixel_y = pixel_y_offset
+
+
 /**
  * Update the preview object's position and appearance
  */
@@ -390,19 +385,6 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	SStgui.close_uis(src)
 	item_browser = null
 
-GAME_VERB_GLOBAL_PROC(togglebuildmode, "Toggle Build Mode", "", "Event")
-	VERB_ARG_TYPED(M, VERB_ARG_TYPE_MOB, VERB_ARG_SOURCE_WORLD, /mob)
-
-	if(M.client)
-		if(istype(M.client.click_intercept,/datum/buildmode))
-			var/datum/buildmode/B = M.client.click_intercept
-			B.quit()
-			log_admin("[key_name(M)] has left build mode.")
-		else
-			new /datum/buildmode(M.client)
-			message_admins("[key_name_admin(M)] has entered build mode.")
-			log_admin("[key_name(M)] has entered build mode.")
-
 /**
  * Dummy object for tracking mouse movement in pixel positioning mode
  */
@@ -447,6 +429,19 @@ GAME_VERB_GLOBAL_PROC(togglebuildmode, "Toggle Build Mode", "", "Event")
 		parent_buildmode.pixel_x_offset = offsets["x"]
 		parent_buildmode.pixel_y_offset = offsets["y"]
 		parent_buildmode.update_preview_position()
+
+GAME_VERB_GLOBAL_PROC(togglebuildmode, "Toggle Build Mode", "", "Event")
+	VERB_ARG_TYPED(M, VERB_ARG_TYPE_MOB, VERB_ARG_SOURCE_WORLD, /mob)
+
+	if(M.client)
+		if(istype(M.client.click_intercept,/datum/buildmode))
+			var/datum/buildmode/B = M.client.click_intercept
+			B.quit()
+			log_admin("[key_name(M)] has left build mode.")
+		else
+			new /datum/buildmode(M.client)
+			message_admins("[key_name_admin(M)] has entered build mode.")
+			log_admin("[key_name(M)] has entered build mode.")
 
 #undef BM_SWITCHSTATE_NONE
 #undef BM_SWITCHSTATE_MODE
