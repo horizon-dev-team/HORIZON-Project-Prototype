@@ -2,8 +2,7 @@
 #define BM_SWITCHSTATE_MODE 1
 #define BM_SWITCHSTATE_DIR 2
 
-// Global cache for appearance objects
-GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
+GLOBAL_LIST_EMPTY(buildmode_appearance_cache) // [HORIZON-ADD]
 
 /datum/buildmode
 	var/build_dir = SOUTH
@@ -86,10 +85,12 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	QDEL_LIST(buttons)
 	QDEL_LIST(modeswitch_buttons)
 	QDEL_LIST(dirswitch_buttons)
+	// [HORIZON-ADD]
 	clear_preview()
 	if(item_browser)
 		SStgui.close_uis(src)
 		item_browser = null
+	// [/HORIZON-ADD]
 	return ..()
 
 /datum/buildmode/proc/post_login()
