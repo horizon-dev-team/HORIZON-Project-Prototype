@@ -57,19 +57,21 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	holder.click_intercept = src
 	mode.enter_mode(src)
 	if(holder?.mob)
-		RegisterSignal(holder.mob, COMSIG_ATOM_MOUSE_ENTERED, PROC_REF(on_mouse_moved_pre))
+		RegisterSignal(holder.mob, COMSIG_ATOM_MOUSE_ENTERED, PROC_REF(on_mouse_moved_pre)) // [HORIZON-ADD]
 
 /datum/buildmode/proc/quit()
 	mode.exit_mode(src)
 	holder.screen -= buttons
 	holder.click_intercept = null
 	holder.show_popup_menus = TRUE
+	// [HORIZON-ADD]
 	clear_preview()
 	if(item_browser)
 		SStgui.close_uis(src)
 		item_browser = null
 	if(holder?.mob)
 		UnregisterSignal(holder.mob, COMSIG_ATOM_MOUSE_ENTERED)
+	// [/HORIZON-ADD]
 	qdel(src)
 
 /datum/buildmode/Destroy()
@@ -225,7 +227,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 	mode.handle_click(user.client, params, object)
 	return TRUE // no doing underlying actions
 
-
+// [HORIZON-ADD]
 /**
  * Create or update the preview appearance that follows the cursor
  *
@@ -429,6 +431,7 @@ GLOBAL_LIST_EMPTY(buildmode_appearance_cache)
 		parent_buildmode.pixel_x_offset = offsets["x"]
 		parent_buildmode.pixel_y_offset = offsets["y"]
 		parent_buildmode.update_preview_position()
+// [/HORIZON-ADD]
 
 GAME_VERB_GLOBAL_PROC(togglebuildmode, "Toggle Build Mode", "", "Event")
 	VERB_ARG_TYPED(M, VERB_ARG_TYPE_MOB, VERB_ARG_SOURCE_WORLD, /mob)
