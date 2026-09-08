@@ -102,8 +102,3 @@
 
 /obj/structure/falsewall/bamboo/add_debris_element()
 	AddElement(/datum/element/debris, DEBRIS_WOOD, -10, 5)
-
-// [HORIZON-FIX] Wire up add_debris_element() globally so /obj and /turf/closed
-/obj/Initialize(mapload)
-	. = ..()
-	add_debris_element()

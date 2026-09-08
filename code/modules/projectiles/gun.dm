@@ -254,17 +254,6 @@
 	if(!tk_firing(user))
 		var/actual_angle = get_angle((user || get_turf(src)), pbtarget)
 		simulate_recoil(user, recoil, actual_angle)
-		// [HORIZON-ADD] Ballistic_Impact
-		if(CHECK_BITFIELD(gun_flags, GUN_SMOKE_PARTICLES))
-			var/angle_for_smoke = !isnull(pbtarget) ? actual_angle : (user.dir ? dir2angle(user.dir) : 0)
-			var/x_component = sin(angle_for_smoke) * 40
-			var/y_component = cos(angle_for_smoke) * 40
-			var/obj/effect/abstract/particle_holder/gun_smoke = new(get_turf(src), /particles/firing_smoke)
-			gun_smoke.particles.velocity = list(x_component, y_component)
-			addtimer(VARSET_CALLBACK(gun_smoke.particles, count, 0), 5)
-			addtimer(VARSET_CALLBACK(gun_smoke.particles, drift, 0), 3)
-			QDEL_IN(gun_smoke, 0.6 SECONDS)
-		// [/HORIZON-ADD]
 	fire_sounds()
 	muzzle_flash_on()
 
@@ -308,6 +297,17 @@
 			ignored_mobs = user,
 			visible_message_flags = ALWAYS_SHOW_SELF_MESSAGE,
 		)
+
+	// [HORIZON-ADD] Ballistic_Impact
+	if(CHECK_BITFIELD(gun_flags, GUN_SMOKE_PARTICLES))
+		var/x_component = sin((get_angle(user, pbtarget))) * 40
+		var/y_component = cos((get_angle(user, pbtarget))) * 40
+		var/obj/effect/abstract/particle_holder/gun_smoke = new(get_turf(src), /particles/firing_smoke)
+		gun_smoke.particles.velocity = list(x_component, y_component)
+		addtimer(VARSET_CALLBACK(gun_smoke.particles, count, 0), 5)
+		addtimer(VARSET_CALLBACK(gun_smoke.particles, drift, 0), 3)
+		QDEL_IN(gun_smoke, 0.6 SECONDS)
+	// [/HORIZON-ADD]
 
 	if(chambered?.integrity_damage)
 		take_damage(chambered.integrity_damage, sound_effect = FALSE)
