@@ -6,7 +6,7 @@
 	return user.holder ? TRUE : FALSE
 
 /datum/keybinding/admin/admin_say
-	hotkey_keys = list("F3")
+	hotkey_keys = list("CtrlF7")
 	name = ADMIN_CHANNEL
 	full_name = "Admin say"
 	description = "Talk with other admins."
