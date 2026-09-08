@@ -256,7 +256,6 @@
 		simulate_recoil(user, recoil, actual_angle)
 	fire_sounds()
 	muzzle_flash_on()
-
 	if(suppressed || !message)
 		return FALSE
 	if(tk_firing(user))
