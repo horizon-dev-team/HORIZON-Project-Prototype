@@ -79,7 +79,7 @@ ADMIN_VERB(ss_breakdown, R_DEBUG, "SS Info Breakdown", "Dump stats of all subsys
 		if((SS.ss_flags & SS_NO_FIRE) || !SS.can_fire)
 			continue
 
-		html += "[SS.state_colour()]\[[SS.state_letter()]][SS.name]</font>\t[SS.get_cost()]ms | [round(SS.tick_usage, 1)]% [SS.get_stat_details() ? "| [SS.get_stat_details()] " : ""]| <a href=byond://?_src_=vars;Vars=[REF(SS)]>VV Edit</a>"
+		html += "[SS.state_colour()]\[[SS.state_letter()]][SS.name]</font>\t[SS.get_cost()]ms | [round(SS.tick_usage, 1)]% [SS.stat_entry() ? "| [SS.stat_entry()] " : ""]| <a href=byond://?_src_=vars;Vars=[REF(SS)]>VV Edit</a>"
 
 	popup.set_content(html.Join("<br>"))
 	popup.open(FALSE)
