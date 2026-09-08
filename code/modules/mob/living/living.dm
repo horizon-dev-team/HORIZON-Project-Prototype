@@ -22,7 +22,6 @@
 	unconscious_appearance = get_unconscious_appearance()
 	if(!isnull(unconscious_appearance))
 		GLOB.unconscious_appearances += unconscious_appearance
-	AddElement(/datum/element/directional_attack)
 
 /mob/living/prepare_huds()
 	..()
