@@ -22,12 +22,6 @@
 	/// Usage: Put the typepaths of the subsystems that need to init after this one in this list.
 	var/list/dependents
 
-	/// SS ID - Again, change this but keep it snake_case
-	var/ss_id = "fire_codertrain_again"
-
-	/// Tab to display in under the MC subtabs
-	var/cpu_display = SS_CPUDISPLAY_DEFAULT
-
 	/// ID of the subsystem. Set automatically when the dependency graph is evaluated. Used primarily in determining order.
 	var/ordering_id = 0
 
@@ -295,10 +289,7 @@
 /datum/controller/subsystem/Initialize()
 	return SS_INIT_NONE
 
-// Gets extra details for the subsystem stat panes
-/datum/controller/subsystem/proc/get_stat_details()
-	return
-
+// [HORIZON-ADD]
 /datum/controller/subsystem/proc/state_colour()
 	switch(state)
 		if(SS_RUNNING) // If its actively processing, colour it green
@@ -315,13 +306,13 @@
 /// Returns what to display as the ms cost for this subsystem.
 /datum/controller/subsystem/proc/get_cost()
 	return round(cost, 1)
+// [/HORIZON-ADD]
 
 /datum/controller/subsystem/stat_entry(msg)
-	var/ss_info = get_stat_details()
 	if(can_fire && !(SS_NO_FIRE & ss_flags) && init_stage <= Master.init_stage_completed)
-		msg = "[round(cost, 1)]ms | [round(tick_usage, 1)]%([round(tick_overrun, 1)]%) | [round(ticks, 0.1)]\t[ss_info]"
+		msg = "[round(cost, 1)]ms | [round(tick_usage, 1)]%([round(tick_overrun, 1)]%) | [round(ticks, 0.1)]\t[msg]
 	else
-		msg = "OFFLINE\t[ss_info]"
+		msg = "OFFLINE\t[msg]
 	return msg
 
 /datum/controller/subsystem/proc/state_letter()

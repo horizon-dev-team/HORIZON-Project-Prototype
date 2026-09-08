@@ -85,7 +85,7 @@ ADMIN_VERB(ss_breakdown, R_DEBUG, "SS Info Breakdown", "Dump stats of all subsys
 	popup.open(FALSE)
 
 /datum/keybinding/admin/mc_debug
-	hotkey_keys = list("F3")
+	hotkey_keys = list("ShiftF3")
 	name = "MC Debug"
 	full_name = "Open MC Debug Tab"
 	description = "Open the MC Debug Tab"
@@ -97,13 +97,3 @@ ADMIN_VERB(ss_breakdown, R_DEBUG, "SS Info Breakdown", "Dump stats of all subsys
 		SSdebugview.stop_processing(C)
 		return
 	SSdebugview.start_processing(C)
-
-/*
-/client/verb/test_debug_overlay()
-	set name = "Test Debug Overlay"
-	set category = "Debug"
-	if(src in SSdebugview.processing)
-		SSdebugview.stop_processing(src)
-	else
-		SSdebugview.start_processing(src)
-*/

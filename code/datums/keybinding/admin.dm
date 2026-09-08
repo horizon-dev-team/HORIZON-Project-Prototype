@@ -55,7 +55,7 @@
 	return TRUE
 
 /datum/keybinding/admin/toggle_buildmode_self
-	hotkey_keys = list("F7")
+	hotkey_keys = list("F3")
 	name = "toggle_buildmode_self"
 	full_name = "Toggle Buildmode Self"
 	description = "Toggles buildmode"
