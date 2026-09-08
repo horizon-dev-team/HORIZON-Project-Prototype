@@ -53,6 +53,11 @@
 @include meta.load-css('./interfaces/CivCargoHoldTerminal.scss');
 @include meta.load-css('./interfaces/EventLogger.scss');
 
+// [HORIZON-ADD]
+@include meta.load-css('./_interfaces_horizon/themes/dark.scss');
+@include meta.load-css('./_interfaces_horizon/spawn.scss');
+// [/HORIZON-ADD]
+
 // Layouts
 @include meta.load-css('./layouts/Layout.scss');
 @include meta.load-css('./layouts/NtosHeader.scss');
