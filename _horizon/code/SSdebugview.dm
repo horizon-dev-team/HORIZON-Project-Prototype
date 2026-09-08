@@ -2,8 +2,6 @@ SUBSYSTEM_DEF(debugview)
 	name = "Debug View"
 	wait = 1 // SS_TICKER subsystem, so wait is in ticks
 	ss_flags = SS_TICKER|SS_NO_INIT
-	//offline_implications = "Shift+F3 will no longer show a debug view. No immediate action is needed."
-	cpu_display = SS_CPUDISPLAY_LOW
 	/// List of clients currently processing
 	var/list/client/processing = list()
 
@@ -15,7 +13,7 @@ SUBSYSTEM_DEF(debugview)
 	// Generate debug text
 	var/list/entries = list()
 	entries += "CPU: [round(world.cpu, 1)] | MCPU: [round(world.map_cpu, 1)] | FPS/TPS: [world.fps] | Clients: [length(GLOB.clients)] | BYOND: [world.byond_version].[world.byond_build]"
-	entries += "\[Atoms] Cost: [SSatoms.get_cost()]ms | MT: N/A | IT: N/A | HS: N/A | WT: N/A"
+	entries += "\[Air] Cost: [round(SSair.cost, 1)]ms | AT: [length(SSair.active_turfs)] | EG: [length(SSair.excited_groups)]"
 	entries += "\[Debug] Cost: [round(SSdebugview.cost, 1)]ms | P: [length(SSdebugview.processing)]" // meta af (tbf we need to know how much were using)
 	entries += "\[FP] Cost: [round(SSfastprocess.cost, 1)]ms | P: [length(SSfastprocess.processing)]"
 	// Snowflakery for SSgarbage
@@ -81,7 +79,7 @@ ADMIN_VERB(ss_breakdown, R_DEBUG, "SS Info Breakdown", "Dump stats of all subsys
 		if((SS.ss_flags & SS_NO_FIRE) || !SS.can_fire)
 			continue
 
-		html += "[SS.state_colour()]\[[SS.state_letter()]][SS.ss_id]</font>\t[SS.get_cost()]ms | [round(SS.tick_usage, 1)]% [SS.get_stat_details() ? "| [SS.get_stat_details()] " : ""]| <a href=byond://?_src_=vars;Vars=[REF(SS)]>VV Edit</a>"
+		html += "[SS.state_colour()]\[[SS.state_letter()]][SS.name]</font>\t[SS.get_cost()]ms | [round(SS.tick_usage, 1)]% [SS.get_stat_details() ? "| [SS.get_stat_details()] " : ""]| <a href=byond://?_src_=vars;Vars=[REF(SS)]>VV Edit</a>"
 
 	popup.set_content(html.Join("<br>"))
 	popup.open(FALSE)
