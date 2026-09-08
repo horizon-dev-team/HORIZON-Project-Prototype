@@ -2,7 +2,7 @@
 /obj/machinery/power/port_gen
 	name = "portable generator"
 	desc = "A portable generator for emergency backup power."
-	icon = 'icons/obj/machines/engine/other.dmi'
+	icon = '_horizon/icons/obj/pacman.dmi'	// [HORIZON-EDIT]
 	icon_state = "portgen0_0"
 	base_icon_state = "portgen0"
 	density = TRUE
@@ -20,6 +20,7 @@
 /obj/machinery/power/port_gen/Initialize(mapload)
 	. = ..()
 	soundloop = new(src, active)
+	update_appearance(UPDATE_OVERLAYS)
 
 /obj/machinery/power/port_gen/Destroy()
 	QDEL_NULL(soundloop)
@@ -56,9 +57,31 @@
 		update_appearance()
 		soundloop.start()
 
-/obj/machinery/power/port_gen/update_icon_state()
-	icon_state = "[base_icon_state]_[active]"
-	return ..()
+// [HORIZON-ADD] - Не спрашивайте как оно работает
+/obj/machinery/power/port_gen/screwdriver_act(mob/living/user, obj/item/tool)
+	. = ..()
+	if(default_deconstruction_screwdriver(user, icon_state, icon_state, tool))
+		update_appearance(UPDATE_OVERLAYS)
+		return ITEM_INTERACT_SUCCESS
+
+/obj/machinery/power/port_gen/wrench_act(mob/living/user, obj/item/tool)
+	. = ..()
+	if(default_unfasten_wrench(user, tool, 0))
+		update_appearance(UPDATE_OVERLAYS)
+		return ITEM_INTERACT_SUCCESS
+
+/obj/machinery/power/port_gen/update_overlays()
+	. = ..()
+	if(anchored)
+		. += "portgen_anchored"
+
+	if(panel_open)
+		. += "portgen_open"
+
+	if(active)
+		. += mutable_appearance(icon, "[base_icon_state]_light")
+		. += emissive_appearance(icon, "[base_icon_state]_light", src)
+// [/HORIZON-ADD]
 
 /obj/machinery/power/port_gen/process()
 	if(active)
