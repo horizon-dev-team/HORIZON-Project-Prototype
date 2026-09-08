@@ -312,7 +312,7 @@
 	if(can_fire && !(SS_NO_FIRE & ss_flags) && init_stage <= Master.init_stage_completed)
 		msg = "[round(cost, 1)]ms | [round(tick_usage, 1)]%([round(tick_overrun, 1)]%) | [round(ticks, 0.1)]\t[msg]
 	else
-		msg = "OFFLINE\t[msg]
+		msg = "OFFLINE\t[msg]"
 	return msg
 
 /datum/controller/subsystem/proc/state_letter()

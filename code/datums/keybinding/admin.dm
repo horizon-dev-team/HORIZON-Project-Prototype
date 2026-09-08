@@ -6,7 +6,7 @@
 	return user.holder ? TRUE : FALSE
 
 /datum/keybinding/admin/admin_say
-	hotkey_keys = list("CtrlF7")
+	hotkey_keys = list("F3")
 	name = ADMIN_CHANNEL
 	full_name = "Admin say"
 	description = "Talk with other admins."
@@ -55,7 +55,7 @@
 	return TRUE
 
 /datum/keybinding/admin/toggle_buildmode_self
-	hotkey_keys = list("F3")
+	hotkey_keys = list("F7")
 	name = "toggle_buildmode_self"
 	full_name = "Toggle Buildmode Self"
 	description = "Toggles buildmode"

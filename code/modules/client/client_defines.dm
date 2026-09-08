@@ -101,7 +101,7 @@
 
 	var/atom/movable/screen/click_catcher/void
 
-	// Overlay for showing debug info
+	// [HORIZON-ADD] Overlay for showing debug info
 	var/atom/movable/screen/debugtextholder/debug_text_overlay
 
 	///used to make a special mouse cursor, this one for mouse up icon
