@@ -23,3 +23,10 @@
 /datum/id_trim/highlander/New()
 	. = ..()
 	access = SSid_access.get_region_access_list(list(REGION_CENTCOM, REGION_ALL_STATION))
+
+/datum/id_trim/admin/debug
+	assignment = "Nullspace Tech"
+	trim_icon = '_horizon/icons/obj/card.dmi'
+	trim_state = "trim_dev"
+	sechud_icon_state = "huddev"
+	subdepartment_color = COLOR_CENTCOM_BLUE

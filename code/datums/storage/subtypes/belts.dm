@@ -397,3 +397,8 @@
 		/obj/item/reagent_containers/cup/beaker/eldritch,
 		/obj/item/stack/sheet/glass, // Glass is often used by moon heretics
 	))
+
+///Utility belt
+/datum/storage/utility_belt/holding
+	max_slots = 12
+	max_total_storage = 48

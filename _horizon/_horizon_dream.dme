@@ -29,4 +29,5 @@
 #include "code\modules\physics\physics_component.dm"
 #include "code\modules\physics\physics_SS.dm"
 #include "code\modules\physics\physics_tester.dm"
+#include "code\portable_recharger.dm"
 // END_INCLUDE

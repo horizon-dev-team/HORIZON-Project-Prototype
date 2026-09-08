@@ -998,3 +998,509 @@
 	desc = "An imitation of a design grown by the infamous Tiziran Plasma Fire. Has a trigger mechanism to more forcefully draw the blade."
 	icon_state = "grass_gunsheath"
 	actions_types = list(/datum/action/innate/blade_counter/gunpowered)
+
+/obj/item/storage/belt/utility/full/powertools
+	name = "\improper Nullspace Tech's belt"
+	w_class = WEIGHT_CLASS_TINY
+	//storage_type = /datum/storage/debug
+	desc = "Can hold a boatload of things...  Why do you have this?!"
+	icon = '_horizon/icons/obj/belt.dmi'
+	icon_state = "admeme_satchel"
+	worn_icon = '_horizon/icons/obj/in_mob/belt_mob.dmi'
+	worn_icon_state = "admeme_satchel"
+
+// MARK: Трикодер
+/obj/item/multitool/tricorder
+	name = "tricorder"
+	desc = "A multifunctional device that can perform a wide range of tasks."
+	icon = '_horizon/icons/obj/tools.dmi'
+	icon_state = "tricorder"
+	lefthand_file = '_horizon/icons/obj/in_hands/tools_lefthand.dmi'
+	righthand_file = '_horizon/icons/obj/in_hands/tools_righthand.dmi'
+	usesound = 'sound/items/weapons/etherealhit.ogg'
+	custom_materials = list(/datum/material/iron = 500, /datum/material/silver = 300, /datum/material/gold = 300)
+	item_flags = NOBLUDGEON
+	tool_behaviour = TOOL_MULTITOOL
+	toolspeed = 0.2
+	var/ranged_scan_distance = 1
+	var/medicalTricorder = FALSE	//Set to TRUE for normal medical scanner, set to FALSE for a gutted version
+
+/obj/item/multitool/tricorder/afterattack(atom/target, mob/user, proximity_flag)
+	. = ..()
+	if(mode > 0 && !istype(target, /mob/living))
+		return
+	if(istype(target, /turf/closed/))
+		return
+//	user.changeNext_move(CLICK_CD_RANGE)
+	if(target in view(ranged_scan_distance, get_turf(user)))
+		switch(mode)
+			if(0)
+				atmos_scan(user, (target.return_analyzable_air() ? target : get_turf(target)))
+				playsound(get_turf(user), 'sound/effects/pop.ogg', 50)
+			if(1)
+				healthscan(user, target, scanpower = SCANPOWER_ADVANCED)
+				playsound(src, 'sound/items/healthanalyzer.ogg', 10)
+				if(!proximity_flag)
+					target.Beam(user, icon_state = "medbeam", time = 5, beam_color = "#9ce")
+			if(2)
+				chemscan(user, target)
+				playsound(src, 'sound/items/healthanalyzer.ogg', 10)
+				if(!proximity_flag)
+					target.Beam(user, icon_state = "medbeam", time = 5, beam_color = "#9ce")
+
+// MARK: Дебаг-Аутфит
+/obj/item/multitool/tricorder/ranged
+	name = "long-range tricorder"
+	desc = "A multifunctional device that can perform a wide range of tasks. A hand-held long-range environmental scanner which reports current gas levels."
+	icon_state = "tricorder_ranged"
+	medicalTricorder = TRUE
+	ranged_scan_distance = 15
+	var/modes = "atmos"
+
+/obj/item/multitool/tricorder/ranged/Initialize()
+	. = ..()
+	update_appearance(UPDATE_ICON)
+
+/obj/item/multitool/tricorder/ranged/examine()
+	. = ..()
+	. += span_notice("The mode is: [modes] scan")
+
+/obj/item/multitool/tricorder/ranged/attack_self(mob/user)
+	mode++
+	switch(mode)
+		if(1)
+			modes = "health"
+		if(2)
+			modes = "chem"
+		if(3)
+			mode = 0
+			modes = "atmos"
+
+	playsound(get_turf(user), 'sound/machines/click.ogg', 50, TRUE)
+	balloon_alert(user, "[modes] scan")
+	update_appearance(UPDATE_ICON)
+
+/obj/item/multitool/tricorder/ranged/update_overlays()
+	. = ..()
+	if(modes)
+		switch(mode)
+			if(0)
+				. += "atmos_overlay"
+			if(1)
+				. += "health_overlay"
+			if(2)
+				. += "chem_overlay"
+
+/obj/item/construction/rcd/arcd/debug
+	max_matter = INFINITY
+	matter = INFINITY
+	construction_upgrades = RCD_UPGRADE_FRAMES | RCD_UPGRADE_SIMPLE_CIRCUITS
+	delay_mod = 0.3
+
+/obj/item/inducer/adv
+	icon_state = "inducer-adv"
+	desc = "A tool for inductively charging internal power cells. This one has a white-bluespace color scheme, and seems to be rigged to transfer charge at a much faster rate."
+	power_transfer_multiplier = 5
+	powerdevice = /obj/item/stock_parts/power_store/battery/bluespace
+
+// MARK: Респрайты
+
+/obj/item/multitool
+	//icon_state = "multitool"
+	icon = '_horizon/icons/obj/tools.dmi'
+	//lefthand_file = '_horizon/icons/obj/in_hands/tools_lefthand.dmi'
+	//righthand_file = '_horizon/icons/obj/in_hands/tools_righthand.dmi'
+
+/obj/item/construction/rcd/arcd
+	icon = '_horizon/icons/obj/tools.dmi'
+/*
+/obj/item/construction/plumbing
+	icon = '_horizon/icons/obj/tools.dmi'
+*/
+
+// MARK: Мед-Сканер
+
+/obj/item/healthanalyzer
+	var/ranged_scan_distance
+
+/obj/item/healthanalyzer/range
+	name = "long-range health analyzer"
+	desc = "A handheld body scanner capable of accurately detecting the patient's vital signs from a distance."
+	icon = '_horizon/icons/obj/tools.dmi'
+	lefthand_file = '_horizon/icons/obj/in_hands/tools_lefthand.dmi'
+	righthand_file = '_horizon/icons/obj/in_hands/tools_righthand.dmi'
+	icon_state = "ranged_analyzer"
+//	item_state = "ranged_analyzer"
+//	healthmode = "ranged_analyzer"
+//	reagentmode = "ranged_reagent_analyzer"
+//	healthmodeinhand = "ranged_analyzer"
+//	reagentmodeinhand = "ranged_reagent_analyzer"
+	ranged_scan_distance = 15
+	custom_premium_price = 1000
+
+/obj/item/healthanalyzer/afterattack(mob/living/M, mob/living/carbon/human/user, adjacent, params)
+	if(adjacent || !istype(M))
+		return ..()
+	if(ranged_scan_distance)
+		M.Beam(user, icon_state = "med_scan", time = 5)
+		attack(M, user)
+		//playsound(src, 'white/Feline/sounds/pip.ogg', 25, FALSE, 2)
+		return
+	return ..()
+
+/obj/item/healthanalyzer/advanced
+	ranged_scan_distance = 15
+
+/obj/item/healthanalyzer/afterattack(mob/living/M, mob/living/carbon/human/user, adjacent, params)
+	. = ..()
+	if(adjacent || !ranged_scan_distance)
+		return .
+	if(!istype(M))
+		return
+	if(can_see(user, M, ranged_scan_distance))
+//		user.changeNext_move(CLICK_CD_RANGE)
+		M.Beam(user, icon_state = "medbeam", time = 5, beam_color = "#9ce")
+		attack(M, user)
+		return
+
+// MARK: Bluespace-RPD
+/*
+#define BSRPD_CAPAC_MAX 50
+#define BSRPD_CAPAC_USE 1
+#define BSRPD_CAPAC_NEW 5
+
+/obj/item/pipe_dispenser/bluespace
+	name = "Bluespace-RPD"
+	desc = "A breakthrough in pipe-laying technology prevents you from being burned to a crisp while building yet another engine."
+	icon_state = "rpd_ranged"
+	icon = '_horizon/icons/obj/tools.dmi'
+	lefthand_file = '_horizon/icons/obj/in_hands/tools_lefthand.dmi'
+	righthand_file = '_horizon/icons/obj/in_hands/tools_righthand.dmi'
+	var/bs_capac = BSRPD_CAPAC_MAX
+	var/bs_use = BSRPD_CAPAC_USE
+	var/bs_prog = 0
+	bluespace = TRUE
+
+/obj/item/pipe_dispenser/bluespace/attackby(obj/item/item, mob/user, param)
+	if(istype(item, /obj/item/stack/sheet/bluespace_crystal) || istype(item, /obj/item/stack/ore/bluespace_crystal))
+		if(BSRPD_CAPAC_NEW > (BSRPD_CAPAC_MAX - bs_capac) || bs_use == 0)
+			to_chat(user, span_warning("[src] is at maximum charge capacity!"))
+			return
+		item.use(1)
+		to_chat(user, span_notice("Recharging the bluespace capacitor inside [src]"))
+		bs_capac += BSRPD_CAPAC_NEW
+		return
+	if(istype(item, /obj/item/assembly/signaler/anomaly/bluespace))
+		if(bs_use)
+			to_chat(user, span_notice("Installing [item] into [src]; now this thing will work much forever!"))
+			bs_use = 0
+			qdel(item)
+		else
+			to_chat(user, span_warning("Where to charge [src] more then!"))
+		return
+	return ..()
+
+/obj/item/pipe_dispenser/bluespace/examine(mob/user)
+	. = ..()
+	if(user.Adjacent(src))
+		. += span_notice("Currently it has [bs_use == 0 ? "INFINITY" : bs_capac / bs_use] of charges.")
+		if(bs_use != 0)
+			. += span_notice("\nThe bluespace core is not installed.")
+	else
+		. += "I can't see charge from here."
+
+/obj/item/pipe_dispenser/bluespace/afterattack(atom/A, mob/user, proximity_flag)
+	if(!range_check(A, user))
+		return FALSE
+
+	if(proximity_flag)
+		return ..()
+
+	if(bs_capac < bs_use)
+		to_chat(user, span_warning("[src] has no charge."))
+		return FALSE
+//	user.changeNext_move(CLICK_CD_RANGE)
+	user.Beam(A, icon_state = "rped_upgrade", time = 1 SECONDS)
+
+	if(pre_attack(target, user))
+		bs_capac -= bs_use
+		return TRUE
+
+	return FALSE
+
+/obj/item/pipe_dispenser/bluespace/proc/range_check(atom/A, mob/user)
+	if(!(A in view(7, get_turf(user))))
+		to_chat(user, span_warning("The \'Out of Range\' light on [src] blinks red."))
+		return FALSE
+	else
+		return TRUE
+
+#undef BSRPD_CAPAC_MAX
+#undef BSRPD_CAPAC_USE
+#undef BSRPD_CAPAC_NEW
+*/
+/obj/item/storage/belt/utility/full/powertools/holding
+	name = "belt of holding"
+	desc = "The greatest in pants-supporting bluespace technology."
+	icon = '_horizon/icons/obj/belt.dmi'
+	worn_icon = '_horizon/icons/obj/in_mob/belt_mob.dmi'
+	icon_state = "holdingbelt"
+	worn_icon_state = "holdingbelt"
+	content_overlays = FALSE
+	storage_type = /datum/storage/utility_belt/holding
+
+/obj/item/storage/belt/utility/full/powertools/holding/PopulateContents()
+	new /obj/item/screwdriver/power(src)
+	new /obj/item/crowbar/power(src)
+	new /obj/item/weldingtool/experimental(src)
+	new /obj/item/multitool(src)
+	new /obj/item/holosign_creator/atmos(src)
+	new /obj/item/extinguisher/mini(src)
+	new /obj/item/stack/cable_coil(src)
+	new /obj/item/analyzer/ranged(src)
+	new /obj/item/geiger_counter(src)
+	new /obj/item/pipe_dispenser(src)
+	new /obj/item/construction/rcd/arcd/debug(src)
+	new /obj/item/inducer(src)
+
+// /obj/item/storage/belt/medical/surgery_belt_adv
+
+// MARK: Тактический Кислородный Баллон
+
+/obj/item/tank/internals/tactical
+	name = "Тактический кислородный баллон"
+	desc = "Кислородный баллон военно-космического назначения. Конструкция весьма массивна и может быть закреплена только на скафандрах и тяжелой верхней одежде. Представляет собой систему магнитных креплений и стабилизирующих ремней для фиксации большинства стандартных видов вооружения. В комплект также входит универсальный оружейный кейс для нестандартных образцов."
+	icon = '_horizon/icons/obj/tank_tactical.dmi'
+	icon_state = "tank"
+	worn_icon = '_horizon/icons/obj/in_mob/tank_tactical_back.dmi'
+	worn_icon_state = "empty"
+	tank_holder_icon_state = null
+	distribute_pressure = TANK_DEFAULT_RELEASE_PRESSURE
+	force = 15
+	dog_fashion = null
+	w_class = WEIGHT_CLASS_BULKY
+	slot_flags = ITEM_SLOT_SUITSTORE
+	equip_sound = 'sound/items/equip/toolbelt_equip.ogg'
+	//allowed = list(/obj/item/flashlight, /obj/item/tank/internals/emergency_oxygen)
+	var/static/list/holdable_weapons_list = list(
+		/obj/item/kinetic_crusher = "crusher",
+		/obj/item/gun/ballistic/shotgun/automatic/combat = "auto_shotgun",
+		/obj/item/gun/ballistic/shotgun/riot = "shotgun",
+		/obj/item/gun/ballistic/shotgun/doublebarrel = "doublebarrel",
+		/obj/item/gun/grenadelauncher = "grenadelauncher",
+		/obj/item/gun/ballistic/automatic/pistol = "pistol",
+		/obj/item/gun/ballistic/revolver = "pistol",
+		/obj/item/gun/ballistic/automatic/wt550 = "wt550",
+		/obj/item/gun/ballistic/automatic/c20r = "c20",
+		/obj/item/gun/ballistic/automatic/m90 = "m90",
+		/obj/item/gun/ballistic/rocketlauncher = "rocket",
+		/obj/item/gun/ballistic/shotgun/bulldog = "bulldog",
+		/obj/item/gun/energy/recharge/kinetic_accelerator = "kinetic",
+		/obj/item/gun/energy/laser = "laser",
+		/obj/item/gun/energy/laser/captain = "cap",
+		/obj/item/gun/energy/e_gun = "egun",
+		/obj/item/gun/energy/e_gun/nuclear = "nuke",
+		/obj/item/gun/energy/e_gun/hos = "hos",
+		/obj/item/gun/energy/e_gun/stun = "egun_taser",
+		/obj/item/gun/energy/e_gun/mini = "pistol",
+		/obj/item/gun/energy/pulse = "pulse",
+		/obj/item/gun/energy/pulse/pistol = "pistol",
+	)
+
+/obj/item/tank/internals/tactical/Initialize(mapload)
+	. = ..()
+	create_storage(storage_type = /datum/storage/pockets/tactical)
+
+//Наполнение баллона воздухом (стандарт)
+/obj/item/tank/internals/tactical/populate_gas()
+	air_contents.set_gas(/datum/gas/oxygen, (6*ONE_ATMOSPHERE)*volume/(R_IDEAL_GAS_EQUATION*T20C))
+
+//Параметры кармана
+/datum/storage/pockets/tactical
+	max_slots = 1
+	max_specific_storage = WEIGHT_CLASS_BULKY
+	rustle_sound = FALSE
+	attack_hand_interact = TRUE
+
+//Тип хранимого
+/datum/storage/pockets/tactical/New(atom/parent, max_slots, max_specific_storage, max_total_storage, numerical_stacking, allow_quick_gather, allow_quick_empty, collection_mode, attack_hand_interact)
+	. = ..()
+	set_holdable(list(
+		/obj/item/gun/ballistic,
+		/obj/item/gun/energy,
+		/obj/item/kinetic_crusher,
+		/obj/item/gun/grenadelauncher
+	))
+
+//Спавн оружия в чехле, так можно задать пресеты, по умолчанию /obj/item/tank/internals/tactical/ должен быть пуст, а пресеты устанавливаются через наследников
+/obj/item/tank/internals/tactical/Initialize(mapload)			//Эскадрон Смерти, шаттл Рейнджеров, Лазутчик Синдиката (корабль), Syndicate Operative - Full Kit (Лонер)
+	. = ..()
+	update_appearance()
+
+/obj/item/tank/internals/tactical/wt550/Initialize(mapload)
+	. = ..()
+	new /obj/item/gun/ballistic/automatic/wt550(src)
+	update_appearance()
+
+/obj/item/tank/internals/tactical/pulse/Initialize(mapload)
+	. = ..()
+	new /obj/item/gun/energy/pulse(src)
+	update_appearance()
+
+/obj/item/tank/internals/tactical/e_gun/Initialize(mapload)	//ERT Commander, ERT Medic, ERT Engineer,
+	. = ..()
+	new /obj/item/gun/energy/e_gun(src)
+	update_appearance()
+
+/obj/item/tank/internals/tactical/e_gun_taser/Initialize(mapload)	//ERT Security, Охранник Инвизиторов
+	. = ..()
+	new /obj/item/gun/energy/e_gun/stun(src)
+	update_appearance()
+
+//Быстрое извлечение через ЛКМ, быстрое разоружение через "E" тут code\modules\mob\inventory.dm
+/obj/item/tank/internals/tactical/attack_hand(mob/user)
+	if(loc != user || user.get_item_by_slot(ITEM_SLOT_SUITSTORE) != src || !user.can_perform_action(src)) //!user.canUseTopic(src, BE_CLOSE, NO_DEXTERITY, FALSE, TRUE))
+		return ..()
+
+	if(length(contents))
+		var/obj/item/I = contents[1]
+		user.visible_message(span_notice("[user] достаёт [I] из [src]."), span_notice("Достаю [I] из [src]."))
+		user.put_in_hands(I)
+		update_appearance()
+		user.update_suit_storage()
+	else
+		to_chat(user, span_warning("Крепления расстегнуты, [capitalize(src.name)] пуст."))
+	return ..()
+
+//Изменение картинки в зависимости от содержания
+/obj/item/tank/internals/tactical/update_icon_state()
+	icon_state = initial(icon_state)
+	worn_icon_state = initial(worn_icon_state)
+	if(!length(contents))
+		cut_overlays()
+		return ..()
+	var/obj/item/I = contents[1]
+	worn_icon_state = "full"
+	playsound(I, 'sound/items/equip/toolbelt_equip.ogg', 25, TRUE)
+
+	if(I.type in holdable_weapons_list)
+		icon_state = holdable_weapons_list[I.type]
+	else
+		var/mutable_appearance/gun_overlay = mutable_appearance(I.icon, I.icon_state)
+		var/matrix/M = matrix()
+		M.Turn(-90)
+		M.Translate(-4, 0)
+		gun_overlay.transform = M
+		add_overlay(gun_overlay)
+		icon_state = "box"
+
+	return ..()
+
+// MARK: Пеналы
+
+/obj/item/storage/belt/medipenal
+	name = "пенал для медипенов"
+	desc = "Компактный и очень удобный пенал вмещающий до 5 медипенов, специальная клипса позволяет закрепить его на карманах или поясе, а с его маленькими габаритами он поместится в коробке или аптечке."
+	icon = '_horizon/icons/obj/medipenal.dmi'
+	icon_state = "penal"
+	slot_flags = ITEM_SLOT_BELT | ITEM_SLOT_POCKETS
+	w_class = WEIGHT_CLASS_SMALL
+	max_integrity = 300
+	equip_sound = 'sound/items/equip/toolbelt_equip.ogg'
+
+/obj/item/storage/belt/medipenal/Initialize()
+	. = ..()
+	atom_storage.max_slots = 5
+	atom_storage.max_specific_storage = WEIGHT_CLASS_NORMAL
+	atom_storage.max_total_storage = 10
+	atom_storage.set_holdable(list(
+		/obj/item/reagent_containers/hypospray/medipen,
+		/obj/item/reagent_containers/syringe
+		))
+
+/obj/item/storage/belt/medipenal/update_icon_state()
+	. = ..()
+	icon_state = initial(icon_state)
+	worn_icon_state = initial(worn_icon_state)
+	if(length(contents))
+		icon_state = "penal[length(contents)]"
+
+/obj/item/storage/belt/medipenal/attack_hand(mob/user, list/modifiers)
+	if(loc == user)
+		if((user.get_item_by_slot(ITEM_SLOT_BELT) == src) || (user.get_item_by_slot(ITEM_SLOT_LPOCKET) == src) || (user.get_item_by_slot(ITEM_SLOT_RPOCKET) == src))
+			if(!user.can_perform_action(src)) // !user.canUseTopic(src, BE_CLOSE, NO_DEXTERITY, FALSE, TRUE))
+				return
+			atom_storage?.show_contents(user)
+	else ..()
+	return
+
+/obj/item/storage/medkit/field_surgery
+	name = "укладка полевого хирурга"
+	desc = "Компактный набор самых необходимых медицинских инструментов для неотложного хирургического вмешательства в полевых условиях."
+	icon_state = "medkit_tactical"
+	inhand_icon_state = "medkit-tactical"
+	damagetype_healed = HEAL_ALL_DAMAGE
+	storage_type = /datum/storage/medkit/surgery/holding
+
+/obj/item/storage/medkit/field_surgery/PopulateContents()
+	if(empty)
+		return
+	var/static/items_inside = list(
+		/obj/item/scalpel/advanced = 1,
+		/obj/item/retractor/advanced = 1,
+		/obj/item/cautery/advanced = 1,
+		/obj/item/surgical_drapes = 1,
+		/obj/item/reagent_containers/medigel/sterilizine = 1,
+		/obj/item/bonesetter = 1,
+		/obj/item/blood_filter = 1,
+		/obj/item/breathing_bag=1,
+		/obj/item/defibrillator/compact/loaded = 1,
+		/obj/item/stack/medical/bone_gel = 1,
+		/obj/item/stack/medical/wrap/sticky_tape/surgical = 1,
+		/obj/item/healthanalyzer/super = 1)
+	generate_items_inside(items_inside,src)
+
+// MARK: Дыхательная груша
+/obj/item/breathing_bag
+	name = "дыхательная груша"
+	desc = "Она же мешок Амбу — механическое ручное устройство для выполнения искусственной вентиляции лёгких."
+	icon = '_horizon/icons/obj/med_items.dmi'
+	icon_state = "breathing_bag"
+	lefthand_file = 'icons/mob/inhands/clothing/masks_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/clothing/masks_righthand.dmi'
+	inhand_icon_state = "m_mask"
+	custom_materials = list(/datum/material/iron=5000, /datum/material/glass=2500)
+	w_class = WEIGHT_CLASS_SMALL
+	toolspeed = 1
+
+/obj/item/breathing_bag/attack(mob/living/M, mob/user)
+	if(M == user)
+		return
+	if (M.is_mouth_covered())
+		to_chat(user, span_warning("Для произведения ИВЛ с пациента надо снять маску!"))
+		return
+	to_chat(user, span_notice("Прикладываю дыхательную маску к лицу [M.name].")) // [skloname(M.name, RODITELNI, M.gender)]."))
+	if(!do_after(user, 30, user))
+		to_chat(user, span_warning("Не получается!"))
+		return
+	. = ..()
+	playsound(user,'_horizon/sound/breathing_bag.ogg', 100, TRUE)
+	for(var/ivl in 1 to 15)
+		if(!do_after(user, 10, user))
+			return
+		to_chat(user, span_notice("Произвожу искуственную вентиляцию легких!"))
+		M.adjust_oxy_loss(-15)
+
+/obj/item/storage/box/traitorbundledebug
+	name = "box of traitor"
+	icon_state = "syndiebox"
+	illustration = "writing_syndie"
+
+/obj/item/storage/box/traitorbundledebug/PopulateContents()
+	var/static/items_inside = list(
+		/obj/item/card/emag=1,\
+		/obj/item/uplink/debug=1,\
+		/obj/item/uplink/nuclear/debug=1,\
+		/obj/item/flashlight/emp/debug=1,\
+	)
+	generate_items_inside(items_inside,src)
