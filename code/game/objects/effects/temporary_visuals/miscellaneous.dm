@@ -1,5 +1,5 @@
 //unsorted miscellaneous temporary visuals
-// [HORIZON-PORT] Blood splatter particle effects from TGMC PR #12752
+// [HORIZON-ADD]
 GLOBAL_LIST_EMPTY(blood_particles)
 /particles/splatter
 	icon = 'icons/effects/effects.dmi'
@@ -21,7 +21,7 @@ GLOBAL_LIST_EMPTY(blood_particles)
 	..()
 	if(set_color != "red") // we're already red colored by default
 		color = set_color
-// [/HORIZON-PORT]
+// [/HORIZON-ADD]
 
 /obj/effect/temp_visual/dir_setting/bloodsplatter
 	icon = 'icons/effects/blood.dmi'
@@ -29,12 +29,12 @@ GLOBAL_LIST_EMPTY(blood_particles)
 	base_icon_state = "splatter"
 	duration = 5
 	randomdir = FALSE
-	layer = ABOVE_MOB_LAYER
+	layer = BELOW_MOB_LAYER
 	plane = GAME_PLANE
 	alpha = 175
 
-// [HORIZON-PORT] Accept angle (degrees) as second arg instead of dir, ported from TGMC PR #12752.
-// set_color arg can be either a color string or a singleton /datum/blood_type to pull the color from.
+// [HORIZON-EDIT]
+// set_color arg can be either a color string or a singleton /datum/blood_type to pull the color from
 /obj/effect/temp_visual/dir_setting/bloodsplatter/Initialize(mapload, angle, set_color = BLOOD_COLOR_RED)
 	var/x_component = sin(angle) * -15
 	var/y_component = cos(angle) * -15
