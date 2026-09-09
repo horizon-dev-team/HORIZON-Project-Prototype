@@ -18,6 +18,7 @@
 // END_PREFERENCES
 
 // BEGIN_INCLUDE
+#include "code\SSdebugview.dm"
 #include "code\__HELPERS\size_icons.dm"
 #include "code\elements\directional_attack.dm"
 #include "code\game\objects\items\overlay_internals_tank.dm"
