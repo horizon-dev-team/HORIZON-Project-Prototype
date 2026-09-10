@@ -70,7 +70,7 @@
 	fire_delay = 0 SECONDS
 	actions_types = list()
 	casing_ejector = FALSE
-	gun_flags = GUN_SMOKE_PARTICLES
+	gun_flags = GUN_SMOKE_PARTICLES // [HORIZON-ADD] Ballistic_Impact
 
 /obj/item/gun/ballistic/rocketlauncher
 	name = "\improper Dardo-RE Rocket Launcher"
@@ -101,7 +101,7 @@
 	can_muzzle_flash = FALSE
 	/// Do we shit flames behind us when we fire?
 	var/backblast = TRUE
-	gun_flags = GUN_SMOKE_PARTICLES
+	gun_flags = GUN_SMOKE_PARTICLES // [HORIZON-ADD] Ballistic_Impact
 
 /obj/item/gun/ballistic/rocketlauncher/Initialize(mapload)
 	. = ..()

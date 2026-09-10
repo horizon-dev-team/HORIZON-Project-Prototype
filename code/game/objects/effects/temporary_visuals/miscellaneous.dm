@@ -1,26 +1,25 @@
 //unsorted miscellaneous temporary visuals
-// [HORIZON-ADD]
+// [HORIZON-ADD] Ballistic_Impact
 GLOBAL_LIST_EMPTY(blood_particles)
 /particles/splatter
-	icon = 'icons/effects/effects.dmi'
-	icon_state = "smoke"
-	width = 500
-	height = 500
-	count = 20
-	spawning = 20
+	icon = '_horizon/icons/effect/96x96.dmi'
+	icon_state = "smoke5"
+	width = 200
+	height = 200
+	count = 3
+	spawning = 3
 	lifespan = 0.5 SECONDS
 	fade = 0.7 SECONDS
 	grow = 0.1
-	scale = 0.2
+	scale = 0.1
 	spin = generator(GEN_NUM, -20, 20)
 	velocity = list(50, 0)
 	friction = generator(GEN_NUM, 0.1, 0.5)
 	position = generator(GEN_CIRCLE, 6, 6)
 
-/particles/splatter/New(set_color)
-	..()
-	if(set_color != "red") // we're already red colored by default
-		color = set_color
+/obj/effect/abstract/particle_holder/reset_transform
+	appearance_flags = KEEP_APART|TILE_BOUND|RESET_TRANSFORM
+
 // [/HORIZON-ADD]
 
 /obj/effect/temp_visual/dir_setting/bloodsplatter
@@ -33,22 +32,21 @@ GLOBAL_LIST_EMPTY(blood_particles)
 	plane = GAME_PLANE
 	alpha = 175
 
-// [HORIZON-EDIT]
+// [HORIZON-EDIT] Ballistic_Impact
 // set_color arg can be either a color string or a singleton /datum/blood_type to pull the color from
 /obj/effect/temp_visual/dir_setting/bloodsplatter/Initialize(mapload, angle, set_color = BLOOD_COLOR_RED)
 	var/x_component = sin(angle) * -15
 	var/y_component = cos(angle) * -15
-	var/color_key = "[set_color]"
 	var/datum/blood_type/blood_type = set_color
 	if(istype(blood_type))
-		color_key = blood_type.color
 		color = blood_type.color
 	else
 		color = set_color
-	if(!GLOB.blood_particles[color_key])
-		GLOB.blood_particles[color_key] = new /particles/splatter(color_key)
-	particles = GLOB.blood_particles[color_key]
-	particles.velocity = list(x_component, y_component)
+	var/obj/effect/abstract/particle_holder/reset_transform/splatter_visuals
+	splatter_visuals = new(src, /particles/splatter)
+	splatter_visuals.particles.velocity = list(x_component, y_component)
+	splatter_visuals.particles.color = color
+	splatter_visuals.plane = ABOVE_ALL_MOB_LAYER
 	icon_state = "[base_icon_state][pick(1, 2, 3, 4, 5, 6)]"
 	. = ..()
 	var/target_pixel_x = 0
@@ -102,6 +100,7 @@ GLOBAL_LIST_EMPTY(blood_particles)
 		if(316 to 359)
 			target_pixel_x = round(-6 * ((360 - angle) / 45))
 			target_pixel_y = 8
+	transform = matrix().Turn(angle)
 	animate(src, pixel_x = target_pixel_x, pixel_y = target_pixel_y, alpha = 0, time = duration, flags = CUBIC_EASING | EASE_OUT)
 // [/HORIZON-PORT]
 
