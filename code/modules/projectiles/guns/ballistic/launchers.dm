@@ -14,7 +14,7 @@
 	pin = /obj/item/firing_pin/implant/pindicate
 	bolt_type = BOLT_TYPE_NO_BOLT
 	can_muzzle_flash = FALSE
-	gun_flags = GUN_SMOKE_PARTICLES
+	gun_flags = GUN_SMOKE_PARTICLES // [HORIZON-ADD] Ballistic_Impact
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/unrestricted
 	pin = /obj/item/firing_pin

@@ -35,7 +35,6 @@
 #include "code\modules\physics\physics_tester.dm"
 #include "code\modules\visual_changes\debris.dm"
 #include "code\modules\visual_changes\debris_additions.dm"
-#include "code\modules\visual_changes\explosions.dm"
 #include "code\modules\visual_changes\gun_smoke.dm"
 #include "code\modules\visual_changes\shockwave.dm"
 // END_INCLUDE

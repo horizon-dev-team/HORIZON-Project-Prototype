@@ -366,7 +366,7 @@
 		impact_x = entry_x + movement_vector?.pixel_x * rand(0, ICON_SIZE_X / 2)
 		impact_y = entry_y + movement_vector?.pixel_y * rand(0, ICON_SIZE_Y / 2)
 
-	SEND_SIGNAL(target, COMSIG_ATOM_PROJECTILE_IMPACT, src, impact_x, impact_y)
+	SEND_SIGNAL(target, COMSIG_ATOM_PROJECTILE_IMPACT, src, impact_x, impact_y) // [HORIZON-ADD] Ballistic_Impact
 
 	if(isturf(target) && hitsound_wall)
 		playsound(src, hitsound_wall, clamp(vol_by_damage() + (suppressed ? 0 : 20), 0, 100), TRUE, -1)
