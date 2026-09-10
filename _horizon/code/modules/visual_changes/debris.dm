@@ -45,17 +45,17 @@
 	debris_velocity = _debris_velocity
 	debris_amount = _debris_amount
 	debris_scale = _debris_scale
-	RegisterSignal(target, COMSIG_ATOM_BULLET_ACT, PROC_REF(register_for_impact))
+	RegisterSignal(target, COMSIG_ATOM_PROJECTILE_IMPACT, PROC_REF(register_for_impact))
 
 /datum/element/debris/Detach(datum/source, force)
 	. = ..()
-	UnregisterSignal(source, COMSIG_ATOM_BULLET_ACT)
+	UnregisterSignal(source, COMSIG_ATOM_PROJECTILE_IMPACT)
 
-/datum/element/debris/proc/register_for_impact(datum/source, obj/projectile/proj)
+/datum/element/debris/proc/register_for_impact(datum/source, obj/projectile/proj, impact_x, impact_y)
 	SIGNAL_HANDLER
-	INVOKE_ASYNC(src, PROC_REF(on_impact), source, proj)
+	INVOKE_ASYNC(src, PROC_REF(on_impact), source, proj, impact_x, impact_y)
 
-/datum/element/debris/proc/on_impact(datum/source, obj/projectile/P)
+/datum/element/debris/proc/on_impact(datum/source, obj/projectile/P, impact_x, impact_y)
 	var/angle = !isnull(P.angle) ? P.angle : round(get_angle(P.starting, source), 1)
 	var/x_component = sin(angle) * debris_velocity
 	var/y_component = cos(angle) * debris_velocity
@@ -63,13 +63,16 @@
 	var/y_component_smoke = cos(angle) * -15
 	var/obj/effect/abstract/particle_holder/debris_visuals
 	var/obj/effect/abstract/particle_holder/smoke_visuals
-	var/position_offset = rand(-6,6)
+	var/impact_offset_x = isnull(impact_x) ? rand(-6,6) : impact_x
+	var/impact_offset_y = isnull(impact_y) ? rand(-6,6) : impact_y
 	smoke_visuals = new(source, /particles/impact_smoke)
-	smoke_visuals.particles.position = list(position_offset, position_offset)
+	smoke_visuals.vis_flags &= ~VIS_INHERIT_PLANE
+	smoke_visuals.particles.position = list(impact_offset_x, impact_offset_y)
 	smoke_visuals.particles.velocity = list(x_component_smoke, y_component_smoke)
 	if(debris && !((ENERGY == P.armor_flag) || (BIO == P.armor_flag)))
 		debris_visuals = new(source, /particles/debris)
-		debris_visuals.particles.position = generator(GEN_CIRCLE, position_offset, position_offset)
+		debris_visuals.vis_flags &= ~VIS_INHERIT_PLANE
+		debris_visuals.particles.position = list(impact_offset_x, impact_offset_y)
 		debris_visuals.particles.velocity = list(x_component, y_component)
 		debris_visuals.layer = ABOVE_ALL_MOB_LAYER + 0.02
 		debris_visuals.particles.icon_state = debris
